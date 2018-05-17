@@ -23,4 +23,12 @@ The .docx filename will be the same as the transcript job name.
 pip install -r requirements.txt
 ```
 
+## Results
+
+| Time    | Speaker | Comment     |
+| ------- | ------- | ----------- |
+| 0:00:03 | spk_0   | Is this on? |
+| 0:00:05 | spk_1   | Yep.        |
+| 0:00:06 | spk_0   | Great.      |
+
 
