@@ -24,19 +24,3 @@ pip install -r requirements.txt
 ```
 
 
-
-
-## Recommened use in a virtualenv
-
-```bash
-virtualenv venv
-source venv/bin/activate
-pip install -r requirements.txt
-
-python3 application.py 'output.json'
-
-deactivate
-```
-
-
-
