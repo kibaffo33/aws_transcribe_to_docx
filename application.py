@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import statistics
 
 print ('# Transcription')
+job_start = datetime.datetime.now()
 
 # Function to help convert timestamps from s to H:M:S
 def convert_time_stamp(n):
@@ -19,6 +20,25 @@ def set_col_widths(table):
     for row in table.rows:
         for idx, width in enumerate(widths):
             row.cells[idx].width = width
+
+# Logging
+logs = boto3.client('logs')
+def write_log(log_text):
+    log_info = logs.describe_log_streams(
+        logGroupName='Transcripts',
+        logStreamNamePrefix='Application')
+    log_time = int(datetime.datetime.now().timestamp() * 1000)
+    response = logs.put_log_events(
+        logGroupName='Transcripts',
+        logStreamName='Application',
+        logEvents=[
+            {
+                'timestamp': log_time,
+                'message': log_text
+            },
+        ],
+        sequenceToken=log_info['logStreams'][0]['uploadSequenceToken']
+    )
 
 # Initiate Document
 document = Document()
@@ -189,5 +209,8 @@ set_col_widths(table)
 document_title = str(data['jobName'] + '.docx')
 document.save(document_title)
 print(document_title, 'saved.')
+job_finish = datetime.datetime.now()
+job_duration = job_finish - job_start
+write_log('Job name: ' + data['jobName'] + ', Word count: ' + str(len(data['results']['items'])) + ', Accuracy average: ' + str(round(statistics.mean(stats['accuracy']), 2)) + ', Job duration: ' + str(job_duration.seconds))
 
 print ('')
