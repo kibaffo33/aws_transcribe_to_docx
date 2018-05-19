@@ -59,19 +59,19 @@ print (file, 'opened...')
 title = str('Transcription of ' + data['jobName'])
 document.add_heading(title, level=1)
 # Set thresholds for formatting later
-threshold_for_bold = 0.98
-threshold_for_grey = 0.90
+threshold_for_grey = 0.98
 # Intro
 document.add_paragraph('Transcription using AWS Transcribe automatic speech recognition.')
 document.add_paragraph(datetime.datetime.now().strftime('Document produced on %A %d %B %Y at %X.'))
 document.add_paragraph() # Spacing
-document.add_paragraph('Bold text has at least ' + str(int(threshold_for_bold * 100)) + '% confidence. Grey text has less than ' + str(int(threshold_for_grey * 100)) + '% confidence. ')
+document.add_paragraph('Grey text has less than ' + str(int(threshold_for_grey * 100)) + '% confidence. ')
 
 # Stats dictionary
 stats = {
     'timestamps': [],
     'accuracy': [],
-    '9.8': 0, '9': 0, '8': 0, '7': 0, '6': 0, '5': 0, '4': 0, '3': 0, '2': 0, '1': 0, '0': 0}
+    '9.8': 0, '9': 0, '8': 0, '7': 0, '6': 0, '5': 0, '4': 0, '3': 0, '2': 0, '1': 0, '0': 0,
+    'total': len(data['results']['items'])}
 print ('Producing stats...')
 
 # Confidence count
@@ -92,45 +92,57 @@ for item in data['results']['items']:
         else: stats['0'] += 1
 
 # Display confidence count table
-table = document.add_table(rows=1, cols=2)
+table = document.add_table(rows=1, cols=3)
 table.style = document.styles['Light List Accent 1']
 table.alignment = WD_ALIGN_PARAGRAPH.CENTER
 hdr_cells = table.rows[0].cells
 hdr_cells[0].text = 'Confidence'
 hdr_cells[1].text = 'Count'
+hdr_cells[2].text = 'Percentage'
 row_cells = table.add_row().cells
 row_cells[0].text = str('98% - 100%')
 row_cells[1].text = str(stats['9.8'])
+row_cells[2].text = str(round(stats['9.8'] / stats['total'] * 100, 2)) + '%'
 row_cells = table.add_row().cells
 row_cells[0].text = str('90% - 97%')
 row_cells[1].text = str(stats['9'])
+row_cells[2].text = str(round(stats['9'] / stats['total'] * 100, 2)) + '%'
 row_cells = table.add_row().cells
 row_cells[0].text = str('80% - 89%')
 row_cells[1].text = str(stats['8'])
+row_cells[2].text = str(round(stats['8'] / stats['total'] * 100, 2)) + '%'
 row_cells = table.add_row().cells
 row_cells[0].text = str('70% - 79%')
 row_cells[1].text = str(stats['7'])
+row_cells[2].text = str(round(stats['7'] / stats['total'] * 100, 2)) + '%'
 row_cells = table.add_row().cells
 row_cells[0].text = str('60% - 69%')
 row_cells[1].text = str(stats['6'])
+row_cells[2].text = str(round(stats['6'] / stats['total'] * 100, 2)) + '%'
 row_cells = table.add_row().cells
 row_cells[0].text = str('50% - 59%')
 row_cells[1].text = str(stats['5'])
+row_cells[2].text = str(round(stats['5'] / stats['total'] * 100, 2)) + '%'
 row_cells = table.add_row().cells
 row_cells[0].text = str('40% - 49%')
 row_cells[1].text = str(stats['4'])
+row_cells[2].text = str(round(stats['4'] / stats['total'] * 100, 2)) + '%'
 row_cells = table.add_row().cells
 row_cells[0].text = str('30% - 39%')
 row_cells[1].text = str(stats['3'])
+row_cells[2].text = str(round(stats['3'] / stats['total'] * 100, 2)) + '%'
 row_cells = table.add_row().cells
 row_cells[0].text = str('20% - 29%')
 row_cells[1].text = str(stats['2'])
+row_cells[2].text = str(round(stats['2'] / stats['total'] * 100, 2)) + '%'
 row_cells = table.add_row().cells
 row_cells[0].text = str('10% - 19%')
 row_cells[1].text = str(stats['1'])
+row_cells[2].text = str(round(stats['1'] / stats['total'] * 100, 2)) + '%'
 row_cells = table.add_row().cells
 row_cells[0].text = str('0% - 9%')
 row_cells[1].text = str(stats['0'])
+row_cells[2].text = str(round(stats['0'] / stats['total'] * 100, 2)) + '%'
 
 # Add paragraph for spacing
 document.add_paragraph()
@@ -189,11 +201,9 @@ for segment in data['results']['speaker_labels']['segments']:
 
                             # Write and format the word
                             run = row_cells[2].paragraphs[0].add_run(' ' + current_word['content'])
-                            if float(current_word['confidence']) >= threshold_for_bold:
-                                run.bold = True
-                            elif float(current_word['confidence']) < threshold_for_grey:
+                            if float(current_word['confidence']) < threshold_for_grey:
                                 font = run.font
-                                font.color.rgb = RGBColor(192, 192, 192)
+                                font.color.rgb = RGBColor(204, 204, 204)
 
                             # If the next item is punctuation, add it
                             try:
@@ -211,6 +221,7 @@ document.save(document_title)
 print(document_title, 'saved.')
 job_finish = datetime.datetime.now()
 job_duration = job_finish - job_start
-write_log('Job name: ' + data['jobName'] + ', Word count: ' + str(len(data['results']['items'])) + ', Accuracy average: ' + str(round(statistics.mean(stats['accuracy']), 2)) + ', Job duration: ' + str(job_duration.seconds))
+write_log('Job name: ' + data['jobName'] + ', Word count: ' + str(stats['total']) + ', Accuracy average: ' + str(round(statistics.mean(stats['accuracy']), 2)) + ', Job duration: ' + str(job_duration.seconds))
+print(data['jobName'], 'logged.')
 
 print ('')
