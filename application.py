@@ -219,9 +219,13 @@ set_col_widths(table)
 document_title = str(data['jobName'] + '.docx')
 document.save(document_title)
 print(document_title, 'saved.')
-job_finish = datetime.datetime.now()
-job_duration = job_finish - job_start
-write_log('Job name: ' + data['jobName'] + ', Word count: ' + str(stats['total']) + ', Accuracy average: ' + str(round(statistics.mean(stats['accuracy']), 2)) + ', Job duration: ' + str(job_duration.seconds))
-print(data['jobName'], 'logged.')
+
+# Logging
+if len(sys.argv) > 2:
+    if sys.argv[2] == 'log':
+        job_finish = datetime.datetime.now()
+        job_duration = job_finish - job_start
+        write_log('Job name: ' + data['jobName'] + ', Word count: ' + str(stats['total']) + ', Accuracy average: ' + str(round(statistics.mean(stats['accuracy']), 2)) + ', Job duration: ' + str(job_duration.seconds))
+        print(data['jobName'], 'logged.')
 
 print ('')
