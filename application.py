@@ -1,3 +1,8 @@
+#!/usr/bin/env python
+from __future__ import print_function
+from __future__ import unicode_literals
+from __future__ import division
+
 from docx import Document
 from docx.shared import Cm, Mm, Inches, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
@@ -5,14 +10,16 @@ import json, datetime, sys, boto3
 import matplotlib.pyplot as plt
 import statistics
 
-print ('# Transcription')
+print('# Transcription')
 job_start = datetime.datetime.now()
+
 
 # Function to help convert timestamps from s to H:M:S
 def convert_time_stamp(n):
     ts = datetime.timedelta(seconds=float(n))
     ts = ts - datetime.timedelta(microseconds=ts.microseconds)
     return str(ts)
+
 
 # Function to set table column widths
 def set_col_widths(table):
@@ -21,24 +28,6 @@ def set_col_widths(table):
         for idx, width in enumerate(widths):
             row.cells[idx].width = width
 
-# Logging
-logs = boto3.client('logs')
-def write_log(log_text):
-    log_info = logs.describe_log_streams(
-        logGroupName='Transcripts',
-        logStreamNamePrefix='Application')
-    log_time = int(datetime.datetime.now().timestamp() * 1000)
-    response = logs.put_log_events(
-        logGroupName='Transcripts',
-        logStreamName='Application',
-        logEvents=[
-            {
-                'timestamp': log_time,
-                'message': log_text
-            },
-        ],
-        sequenceToken=log_info['logStreams'][0]['uploadSequenceToken']
-    )
 
 # Initiate Document
 document = Document()
@@ -53,7 +42,7 @@ font.name = 'Calibri'
 # eg: python3 application.py 'output.json'
 file = sys.argv[1]
 data = json.load(open(file))
-print (file, 'opened...')
+print(file, 'opened...')
 
 # Document title and intro
 title = str('Transcription of ' + data['jobName'])
@@ -63,7 +52,7 @@ threshold_for_grey = 0.98
 # Intro
 document.add_paragraph('Transcription using AWS Transcribe automatic speech recognition.')
 document.add_paragraph(datetime.datetime.now().strftime('Document produced on %A %d %B %Y at %X.'))
-document.add_paragraph() # Spacing
+document.add_paragraph()  # Spacing
 document.add_paragraph('Grey text has less than ' + str(int(threshold_for_grey * 100)) + '% confidence. ')
 
 # Stats dictionary
@@ -72,7 +61,7 @@ stats = {
     'accuracy': [],
     '9.8': 0, '9': 0, '8': 0, '7': 0, '6': 0, '5': 0, '4': 0, '3': 0, '2': 0, '1': 0, '0': 0,
     'total': len(data['results']['items'])}
-print ('Producing stats...')
+print('Producing stats...')
 
 # Confidence count
 for item in data['results']['items']:
@@ -151,10 +140,11 @@ document.add_paragraph()
 # Confidence of each word as scatter graph
 plt.scatter(stats['timestamps'], stats['accuracy'])
 # Mean average as line across graph
-plt.plot([stats['timestamps'][0], stats['timestamps'][-1]], [statistics.mean(stats['accuracy']), statistics.mean(stats['accuracy'])], 'r')
+plt.plot([stats['timestamps'][0], stats['timestamps'][-1]],
+         [statistics.mean(stats['accuracy']), statistics.mean(stats['accuracy'])], 'r')
 # Formatting
 plt.xlabel('Time (seconds)')
-#plt.xticks(range(0, int(stats['timestamps'][-1]), 60))
+# plt.xticks(range(0, int(stats['timestamps'][-1]), 60))
 plt.ylabel('Accuracy (percent)')
 plt.yticks(range(0, 101, 10))
 plt.title('Accuracy during video')
@@ -165,7 +155,7 @@ document.paragraphs[-1].alignment = WD_ALIGN_PARAGRAPH.CENTER
 document.add_page_break()
 
 # Process and display transcript by speaker segments
-print ('Writing transcript...')
+print('Writing transcript...')
 table = document.add_table(rows=1, cols=3)
 table.style = document.styles['Light List Accent 1']
 hdr_cells = table.rows[0].cells
@@ -223,9 +213,33 @@ print(document_title, 'saved.')
 # Logging
 if len(sys.argv) > 2:
     if sys.argv[2] == 'log':
+        # Logging
+        logs = boto3.client('logs')  # this might throw exception if we don't have `aws configure`
+
+
+        def write_log(log_text):
+            log_info = logs.describe_log_streams(
+                logGroupName='Transcripts',
+                logStreamNamePrefix='Application')
+            log_time = int(datetime.datetime.now().timestamp() * 1000)
+            response = logs.put_log_events(
+                logGroupName='Transcripts',
+                logStreamName='Application',
+                logEvents=[
+                    {
+                        'timestamp': log_time,
+                        'message': log_text
+                    },
+                ],
+                sequenceToken=log_info['logStreams'][0]['uploadSequenceToken']
+            )
+
+
         job_finish = datetime.datetime.now()
         job_duration = job_finish - job_start
-        write_log('Job name: ' + data['jobName'] + ', Word count: ' + str(stats['total']) + ', Accuracy average: ' + str(round(statistics.mean(stats['accuracy']), 2)) + ', Job duration: ' + str(job_duration.seconds))
+        write_log('Job name: ' + data['jobName'] + ', Word count: ' + str(stats['total']) +
+                  ', Accuracy average: ' + str(round(statistics.mean(stats['accuracy']), 2)) +
+                  ', Job duration: ' + str(job_duration.seconds))
         print(data['jobName'], 'logged.')
 
-print ('')
+print('')
