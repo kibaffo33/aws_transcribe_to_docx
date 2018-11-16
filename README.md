@@ -1,7 +1,5 @@
 # aws_transcribe_to_docx
-Procude Word Document transcriptions using the automatic speech recognition from AWS Transcribe.
-
-
+Produce Word Document transcriptions using the automatic speech recognition from AWS Transcribe.
 
 ## Usage
 

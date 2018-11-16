@@ -13,3 +13,4 @@ python-docx==0.8.6
 pytz==2018.4
 s3transfer==0.1.13
 six==1.11.0
+statistics==1.0.3.5
