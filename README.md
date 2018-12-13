@@ -1,33 +1,29 @@
 # aws_transcribe_to_docx
 Produce Word Document transcriptions using the automatic speech recognition from AWS Transcribe.
 
-## Usage
-
-With `application.py` in the same folder as your aws transcribe `output.json`:
+# Installation
 
 ```bash
-python3 application.py output.json
+git clone https://github.com/kibaffo33/aws_transcribe_to_docx.git
+cd aws_transcribe_to_docx
+pip install .
 ```
 
-The python app will produce a .docx transcript from the .json output of AWS transcribe.
+## Usage
 
-The .docx filename will be the same as the transcript job name.
+```bash
+trdx -f transcribe.json
+```
+
 
 ### Logging
 
-Use optional `log` argument to enable logging to CloudWatch Logs. Defaults to Log Group 'Transcripts' and Log Stream 'Application'
+Use optional `-l` followed by your Log Group and Stream, to enable logging to CloudWatch Logs. 
 
 ```bash
-python3 application.py output.json log
+trdx -f transcribe.json -l Transcripts Application
 ```
 
-
-
-## Dependencies
-
-```bash
-pip install -r requirements.txt
-```
 
 ## Results
 
