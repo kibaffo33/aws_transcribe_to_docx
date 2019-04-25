@@ -4,26 +4,20 @@ Produce Word Document transcriptions using the automatic speech recognition from
 # Installation
 
 ```bash
-git clone https://github.com/kibaffo33/aws_transcribe_to_docx.git
-cd aws_transcribe_to_docx
-pip install .
+pip install scribe
 ```
 
 ## Usage
 
-```bash
-trdx -f transcribe.json
 ```
+>>> import scribe
 
+>>> scribe.write("output.json")
+Transcript output.docx written.
 
-### Logging
-
-Use optional `-l` followed by your Log Group and Stream, to enable logging to CloudWatch Logs. 
-
-```bash
-trdx -f transcribe.json -l Transcripts Application
+>>> scribe.write("output.json", save_as="transcript.docx")
+Transcript transcript.docx writen.
 ```
-
 
 ## Results
 

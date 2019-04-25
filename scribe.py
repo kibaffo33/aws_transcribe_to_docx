@@ -1,15 +1,13 @@
 #!/usr/bin/env python
 
-import click
+"""Produce Word Document transcriptions using the automatic speech recognition from AWS Transcribe."""
+
 from docx import Document
 from docx.shared import Cm, Mm, Inches, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
-import json, datetime, boto3
+import json, datetime
 import matplotlib.pyplot as plt
 import statistics
-
-
-job_start = datetime.datetime.now()
 
 
 # Function to help convert timestamps from s to H:M:S
@@ -19,12 +17,7 @@ def convert_time_stamp(n):
     return str(ts)
 
 
-@click.command()
-@click.option('--file', '-f', prompt='JSON file', type=click.Path(exists=True), help='JSON file from AWS Trainscribe.')
-@click.option('--log', '-l', nargs=2, help="Provide AWS CloudWatch a) Log Group and b) Log Steam")
-def make_document(file, log):
-    """Produce Word Document transcriptions using the automatic speech recognition from AWS Transcribe."""
-
+def write(file, **kwargs):
     # Initiate Document
     document = Document()
     # A4 Size
@@ -34,10 +27,8 @@ def make_document(file, log):
     font = document.styles['Normal'].font
     font.name = 'Calibri'
 
-    # Load Transcription output from command line input
-    # eg: python3 application.py 'output.json'
-    data = json.load(open(file))
-    click.echo(f"{click.format_filename(file)} opened...")
+    # Load Transcription output
+    data = json.load(open(file, 'r'))
 
     # Document title and intro
     title = f"Transcription of {data['jobName']}"
@@ -58,8 +49,6 @@ def make_document(file, log):
         'total': len(data['results']['items'])}
 
     # Confidence count
-
-    click.echo('Producing stats...')
     for item in data['results']['items']:
         if item['type'] == 'pronunciation':
             stats['timestamps'].append(float(item['start_time']))
@@ -148,7 +137,6 @@ def make_document(file, log):
     document.add_page_break()
 
     # Process and display transcript by speaker segments
-    click.echo('Writing transcript...')
     table = document.add_table(rows=1, cols=3)
     table.style = document.styles['Light List Accent 1']
     hdr_cells = table.rows[0].cells
@@ -156,80 +144,53 @@ def make_document(file, log):
     hdr_cells[1].text = 'Speaker'
     hdr_cells[2].text = 'Content'
 
-    with click.progressbar(data['results']['speaker_labels']['segments']) as bar:
-        for segment in bar:
-            # If there is content in the segment
-            if len(segment['items']) > 0:
-                # Add a row, write the time and speaker
-                row_cells = table.add_row().cells
-                row_cells[0].text = convert_time_stamp(segment['start_time'])
-                row_cells[1].text = str(segment['speaker_label'])
+    for segment in data['results']['speaker_labels']['segments']:
+        # If there is content in the segment
+        if len(segment['items']) > 0:
+            # Add a row, write the time and speaker
+            row_cells = table.add_row().cells
+            row_cells[0].text = convert_time_stamp(segment['start_time'])
+            row_cells[1].text = str(segment['speaker_label'])
 
-                # Segments group individual word results by speaker. They are cross-referenced by time.
-                # For each word in the segment...
-                for word in segment['items']:
-                    # Run through the word results and get the corresponding result
-                    for result in data['results']['items']:
-                        if result['type'] == 'pronunciation':
-                            if result['start_time'] == word['start_time']:
+            # Segments group individual word results by speaker. They are cross-referenced by time.
+            # For each word in the segment...
+            for word in segment['items']:
+                # Run through the word results and get the corresponding result
+                for result in data['results']['items']:
+                    if result['type'] == 'pronunciation':
+                        if result['start_time'] == word['start_time']:
 
-                                # Get the word with the highest confidence
-                                if len(result['alternatives']) > 0:
-                                    current_word = dict()
-                                    confidence_scores = []
-                                    for score in result['alternatives']:
-                                        confidence_scores.append(score['confidence'])
-                                    for alternative in result['alternatives']:
-                                        if alternative['confidence'] == max(confidence_scores):
-                                            current_word = alternative.copy()
+                            # Get the word with the highest confidence
+                            if len(result['alternatives']) > 0:
+                                current_word = dict()
+                                confidence_scores = []
+                                for score in result['alternatives']:
+                                    confidence_scores.append(score['confidence'])
+                                for alternative in result['alternatives']:
+                                    if alternative['confidence'] == max(confidence_scores):
+                                        current_word = alternative.copy()
 
-                                    # Write and format the word
-                                    run = row_cells[2].paragraphs[0].add_run(' ' + current_word['content'])
-                                    if float(current_word['confidence']) < threshold_for_grey:
-                                        font = run.font
-                                        font.color.rgb = RGBColor(204, 204, 204)
+                                # Write and format the word
+                                run = row_cells[2].paragraphs[0].add_run(' ' + current_word['content'])
+                                if float(current_word['confidence']) < threshold_for_grey:
+                                    font = run.font
+                                    font.color.rgb = RGBColor(204, 204, 204)
 
-                                    # If the next item is punctuation, add it
-                                    try:
-                                        if data['results']['items'][data['results']['items'].index(result) + 1]['type'] == 'punctuation':
-                                            run = row_cells[2].paragraphs[0].add_run(data['results']['items'][data['results']['items'].index(result) + 1]['alternatives'][0]['content'])
-                                    # Occasional IndexErrors encountered
-                                    except:
-                                        pass
+                                # If the next item is punctuation, add it
+                                try:
+                                    if data['results']['items'][data['results']['items'].index(result) + 1]['type'] == 'punctuation':
+                                        run = row_cells[2].paragraphs[0].add_run(data['results']['items'][data['results']['items'].index(result) + 1]['alternatives'][0]['content'])
+                                # Occasional IndexErrors encountered
+                                except:
+                                    pass
 
     # Formatting transcript table widthds
-    click.echo('Formatting...')
     widths = (Inches(0.6), Inches(1), Inches(4.5))
-    with click.progressbar(table.rows) as bar:
-        for row in bar:
-            for idx, width in enumerate(widths):
-                row.cells[idx].width = width
+    for row in table.rows:
+        for idx, width in enumerate(widths):
+            row.cells[idx].width = width
 
-    # Save the file
-    document_title = f"{data['jobName']}.docx"
-    document.save(document_title)
-    click.echo(f"{document_title} saved.")
-
-    if log:
-        # Logging
-        logs = boto3.client('logs')  # this might throw exception if we don't have `aws configure`
-        def write_log(log_text):
-            log_info = logs.describe_log_streams(
-                logGroupName=log[0],
-                logStreamNamePrefix=log[1])
-            log_time = int(datetime.datetime.now().timestamp() * 1000)
-            response = logs.put_log_events(
-                logGroupName=log[0],
-                logStreamName=log[1],
-                logEvents=[
-                    {
-                        'timestamp': log_time,
-                        'message': log_text
-                    },
-                ],
-                sequenceToken=log_info['logStreams'][0]['uploadSequenceToken']
-            )
-        job_finish = datetime.datetime.now()
-        job_duration = job_finish - job_start
-        write_log(f"Job name: {data['jobName']}, Word count: {stats['total']}, Accuracy average: {round(statistics.mean(stats['accuracy']), 2)}, Job duration: {job_duration.seconds}")
-        click.echo(f"{data['jobName']} logged.")
+    # Save
+    filename = kwargs.get('save_as', f"{data['jobName']}.docx")
+    document.save(filename)
+    print(f"Transcript {filename} writen.")
