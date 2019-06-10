@@ -1,6 +1,4 @@
-#!/usr/bin/env python
-
-"""Produce Word Document transcriptions using the automatic speech recognition from AWS Transcribe."""
+""" Produce Word Document transcriptions using the automatic speech recognition from AWS Transcribe. """
 
 from docx import Document
 from docx.shared import Cm, Mm, Inches, RGBColor
@@ -10,14 +8,16 @@ import matplotlib.pyplot as plt
 import statistics
 
 
-# Function to help convert timestamps from s to H:M:S
 def convert_time_stamp(n):
+    """ Function to help convert timestamps from s to H:M:S """
     ts = datetime.timedelta(seconds=float(n))
     ts = ts - datetime.timedelta(microseconds=ts.microseconds)
     return str(ts)
 
 
 def write(file, **kwargs):
+    """ Write a transcript from the .json transcription file. """
+
     # Initiate Document
     document = Document()
     # A4 Size

@@ -4,18 +4,18 @@ Produce Word Document transcriptions using the automatic speech recognition from
 # Installation
 
 ```bash
-pip install scribe
+pip install tscribe
 ```
 
 ## Usage
 
 ```
->>> import scribe
+>>> import tscribe
 
->>> scribe.write("output.json")
+>>> tscribe.write("output.json")
 Transcript output.docx written.
 
->>> scribe.write("output.json", save_as="transcript.docx")
+>>> tscribe.write("output.json", save_as="transcript.docx")
 Transcript transcript.docx writen.
 ```
 
