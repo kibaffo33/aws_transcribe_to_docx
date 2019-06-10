@@ -28,7 +28,7 @@ def write(file, **kwargs):
     font.name = 'Calibri'
 
     # Load Transcription output
-    data = json.load(open(file, 'r'))
+    data = json.load(open(file, 'r', encoding='utf-8'))
 
     # Document title and intro
     title = f"Transcription of {data['jobName']}"
