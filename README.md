@@ -1,7 +1,8 @@
 # aws_transcribe_to_docx
-Produce Word Document transcriptions using the automatic speech recognition from AWS Transcribe.
 
-Requires  Python 3.7+
+Produce Word Document transcriptions using the automatic speech recognition from AWS Transcribe. Requires  Python 3.7+
+
+[![Build Status](https://travis-ci.com/kibaffo33/aws_transcribe_to_docx.svg?branch=master)](https://travis-ci.com/kibaffo33/aws_transcribe_to_docx)
 
 # Installation
 
