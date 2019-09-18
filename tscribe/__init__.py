@@ -144,45 +144,94 @@ def write(file, **kwargs):
     hdr_cells[1].text = 'Speaker'
     hdr_cells[2].text = 'Content'
 
-    for segment in data['results']['speaker_labels']['segments']:
-        # If there is content in the segment
-        if len(segment['items']) > 0:
-            # Add a row, write the time and speaker
-            row_cells = table.add_row().cells
-            row_cells[0].text = convert_time_stamp(segment['start_time'])
-            row_cells[1].text = str(segment['speaker_label'])
+    # If speaker identification
+    if 'speaker_labels' in data['results'].keys():
+        for segment in data['results']['speaker_labels']['segments']:
+            # If there is content in the segment
+            if len(segment['items']) > 0:
+                # Add a row, write the time and speaker
+                row_cells = table.add_row().cells
+                row_cells[0].text = convert_time_stamp(segment['start_time'])
+                row_cells[1].text = str(segment['speaker_label'])
 
-            # Segments group individual word results by speaker. They are cross-referenced by time.
-            # For each word in the segment...
-            for word in segment['items']:
-                # Run through the word results and get the corresponding result
-                for result in data['results']['items']:
-                    if result['type'] == 'pronunciation':
-                        if result['start_time'] == word['start_time']:
+                # Segments group individual word results by speaker. They are cross-referenced by time.
+                # For each word in the segment...
+                for word in segment['items']:
+                    # Run through the word results and get the corresponding result
+                    for result in data['results']['items']:
+                        if result['type'] == 'pronunciation':
+                            if result['start_time'] == word['start_time']:
 
-                            # Get the word with the highest confidence
-                            if len(result['alternatives']) > 0:
-                                current_word = dict()
-                                confidence_scores = []
-                                for score in result['alternatives']:
-                                    confidence_scores.append(score['confidence'])
-                                for alternative in result['alternatives']:
-                                    if alternative['confidence'] == max(confidence_scores):
-                                        current_word = alternative.copy()
+                                # Get the word with the highest confidence
+                                if len(result['alternatives']) > 0:
+                                    current_word = dict()
+                                    confidence_scores = []
+                                    for score in result['alternatives']:
+                                        confidence_scores.append(score['confidence'])
+                                    for alternative in result['alternatives']:
+                                        if alternative['confidence'] == max(confidence_scores):
+                                            current_word = alternative.copy()
 
-                                # Write and format the word
-                                run = row_cells[2].paragraphs[0].add_run(' ' + current_word['content'])
-                                if float(current_word['confidence']) < threshold_for_grey:
-                                    font = run.font
-                                    font.color.rgb = RGBColor(204, 204, 204)
+                                    # Write and format the word
+                                    run = row_cells[2].paragraphs[0].add_run(' ' + current_word['content'])
+                                    if float(current_word['confidence']) < threshold_for_grey:
+                                        font = run.font
+                                        font.color.rgb = RGBColor(204, 204, 204)
 
-                                # If the next item is punctuation, add it
-                                try:
-                                    if data['results']['items'][data['results']['items'].index(result) + 1]['type'] == 'punctuation':
-                                        run = row_cells[2].paragraphs[0].add_run(data['results']['items'][data['results']['items'].index(result) + 1]['alternatives'][0]['content'])
-                                # Occasional IndexErrors encountered
-                                except:
-                                    pass
+                                    # If the next item is punctuation, add it
+                                    try:
+                                        if data['results']['items'][data['results']['items'].index(result) + 1]['type'] == 'punctuation':
+                                            run = row_cells[2].paragraphs[0].add_run(data['results']['items'][data['results']['items'].index(result) + 1]['alternatives'][0]['content'])
+                                    # Occasional IndexErrors encountered
+                                    except:
+                                        pass
+    # Else no speaker identification
+    else:
+        # Run through the word results
+
+        # Start the first row
+        row_cells = table.add_row().cells
+        row_cells[0].text = convert_time_stamp(data['results']['items'][0]['start_time'])
+
+        # Add words
+        for result in data['results']['items']:
+            if result['type'] == 'pronunciation':
+                # Write the time if it's not yet there
+                if table.cell(-1, 0).text == "":
+                    table.cell(-1, 0).text = convert_time_stamp(result["start_time"])
+
+                # Get the word with the highest confidence
+                if len(result['alternatives']) > 0:
+                    current_word = dict()
+                    confidence_scores = []
+                    for score in result['alternatives']:
+                        confidence_scores.append(score['confidence'])
+                    for alternative in result['alternatives']:
+                        if alternative['confidence'] == max(confidence_scores):
+                            current_word = alternative.copy()
+
+                    # Write and format the word
+                    run = table.cell(-1, 2).paragraphs[0].add_run(' ' + current_word['content'])
+                    if float(current_word['confidence']) < threshold_for_grey:
+                        font = run.font
+                        font.color.rgb = RGBColor(204, 204, 204)
+
+            # If the next item is punctuation, add it and start a new row
+            elif result['type'] == 'punctuation':
+
+                # Get the punctuation with the highest confidence
+                if len(result['alternatives']) > 0:
+                    current_word = dict()
+                    confidence_scores = []
+                    for score in result['alternatives']:
+                        confidence_scores.append(score['confidence'])
+                    for alternative in result['alternatives']:
+                        if alternative['confidence'] == max(confidence_scores):
+                            current_word = alternative.copy()
+
+                    # Write and format the word
+                    run = table.cell(-1, 2).paragraphs[0].add_run(current_word['content'])
+                    table.add_row().cells
 
     # Formatting transcript table widthds
     widths = (Inches(0.6), Inches(1), Inches(4.5))
