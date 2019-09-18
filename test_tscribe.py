@@ -14,7 +14,7 @@ def test_multiple_speakers():
 
     # Setup
     input_file = "sample_multiple.json"
-    output_file = "sample_multiple.json"
+    output_file = "sample_multiple.docx"
     assert os.access(input_file, os.F_OK), "Input file not found"
 
     # Function
@@ -38,7 +38,7 @@ def test_multiple_speakers_with_save_as():
 
     # Setup
     input_file = "sample_multiple.json"
-    output_file = "test_sample.json"
+    output_file = "test_sample.docx"
     assert os.access(input_file, os.F_OK), "Input file not found"
 
     # Function
@@ -62,7 +62,7 @@ def test_single_speaker():
 
     # Setup
     input_file = "sample_single.json"
-    output_file = "sample_single.json"
+    output_file = "sample_single.docx"
     assert os.access(input_file, os.F_OK), "Input file not found"
 
     # Function
@@ -86,7 +86,7 @@ def test_single_speaker_with_save_as():
 
     # Setup
     input_file = "sample_single.json"
-    output_file = "test_sample.json"
+    output_file = "test_sample.docx"
     assert os.access(input_file, os.F_OK), "Input file not found"
 
     # Function
