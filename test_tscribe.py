@@ -54,7 +54,7 @@ def test_single_speaker():
     """
     Test output exists with single speaker input
 
-    # GIVEN a sample file containing multiple speakers
+    # GIVEN a sample file containing single speaker
     # WHEN calling tscribe.write(...)
     # THEN produce the .docx without errors
 
@@ -78,7 +78,7 @@ def test_single_speaker_with_save_as():
     """
     Test output exists with single speaker input, and save_as defined
 
-    # GIVEN a sample file containing multiple speakers, and an output filename
+    # GIVEN a sample file containing single speaker, and an output filename
     # WHEN calling tscribe.write(...)
     # THEN produce the .docx, named correctly, without errors
 
