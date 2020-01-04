@@ -56,7 +56,7 @@ def test_multiple_speakers_with_save_as_with_tmp_dir():
 
     # GIVEN a sample file containing multiple speakers, and an output filename, and a writable tmp directory
     # WHEN calling tscribe.write(...)
-    # THEN produce the .docx, named correctly, without errors
+    # THEN produce the .docx, with a chart, named correctly, without errors
 
     """
 
@@ -68,6 +68,7 @@ def test_multiple_speakers_with_save_as_with_tmp_dir():
 
     # Function
     tscribe.write(input_file, save_as=output_file, tmp_dir=tmp_dir)
+    assert os.access(tmp_dir+"chart.png", os.F_OK), "Chart file not found"
     assert os.access(output_file, os.F_OK), "Output file not found"
 
     # Teardown
@@ -129,7 +130,7 @@ def test_single_speaker_with_save_as_with_tmp_dir():
 
     # GIVEN a sample file containing single speaker, and an output filename, and a writable tmp directory
     # WHEN calling tscribe.write(...)
-    # THEN produce the .docx, named correctly, without errors
+    # THEN produce the .docx, with a chart, named correctly, without errors
 
     """
 
@@ -141,6 +142,7 @@ def test_single_speaker_with_save_as_with_tmp_dir():
 
     # Function
     tscribe.write(input_file, save_as=output_file, tmp_dir=tmp_dir)
+    assert os.access(tmp_dir+"chart.png", os.F_OK), "Chart file not found"
     assert os.access(output_file, os.F_OK), "Output file not found"
 
     # Teardown
