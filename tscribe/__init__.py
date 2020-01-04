@@ -131,8 +131,14 @@ def write(file, **kwargs):
     plt.yticks(range(0, 101, 10))
     plt.title('Accuracy during video')
     plt.legend(['Accuracy average (mean)', 'Individual words'], loc='lower center')
-    plt.savefig('chart.png')
-    document.add_picture('chart.png', width=Cm(14.64))
+
+    # not all file systems are writable, so we allow specifying a writable tmp directory
+    # alternatively if it is not set, we use ./
+    tmp_dir = kwargs.get('tmp_dir', "./")
+    chart_file_name = tmp_dir+'chart.png'
+
+    plt.savefig(chart_file_name)
+    document.add_picture(chart_file_name, width=Cm(14.64))
     document.paragraphs[-1].alignment = WD_ALIGN_PARAGRAPH.CENTER
     document.add_page_break()
 
