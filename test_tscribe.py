@@ -68,12 +68,12 @@ def test_multiple_speakers_with_save_as_with_tmp_dir():
 
     # Function
     tscribe.write(input_file, save_as=output_file, tmp_dir=tmp_dir)
-    assert os.access(tmp_dir+"chart.png", os.F_OK), "Chart file not found"
+    assert os.access(tmp_dir + "chart.png", os.F_OK), "Chart file not found"
     assert os.access(output_file, os.F_OK), "Output file not found"
 
     # Teardown
     os.remove(output_file)
-    os.remove(tmp_dir+"chart.png")
+    os.remove(tmp_dir + "chart.png")
 
 
 def test_single_speaker():
@@ -142,9 +142,9 @@ def test_single_speaker_with_save_as_with_tmp_dir():
 
     # Function
     tscribe.write(input_file, save_as=output_file, tmp_dir=tmp_dir)
-    assert os.access(tmp_dir+"chart.png", os.F_OK), "Chart file not found"
+    assert os.access(tmp_dir + "chart.png", os.F_OK), "Chart file not found"
     assert os.access(output_file, os.F_OK), "Output file not found"
 
     # Teardown
     os.remove(output_file)
-    os.remove(tmp_dir+"chart.png")
+    os.remove(tmp_dir + "chart.png")
