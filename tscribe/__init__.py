@@ -6,6 +6,7 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 import json, datetime
 import matplotlib.pyplot as plt
 import statistics
+from pathlib import Path
 
 
 def convert_time_stamp(n):
@@ -28,7 +29,10 @@ def write(file, **kwargs):
     font.name = 'Calibri'
 
     # Load Transcription output
-    data = json.load(open(file, 'r', encoding='utf-8'))
+    json_filepath = Path(file)
+    assert json_filepath.is_file(), "JSON file does not exist"
+    data = json.load(open(json_filepath.absolute(), "r", encoding="utf-8"))
+    assert data["status"] == "COMPLETED", "JSON file not shown as completed."
 
     # Document title and intro
     title = f"Transcription of {data['jobName']}"
