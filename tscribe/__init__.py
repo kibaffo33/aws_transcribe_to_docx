@@ -136,7 +136,7 @@ def write(file, **kwargs):
     # plt.xticks(range(0, int(stats['timestamps'][-1]), 60))
     plt.ylabel("Accuracy (percent)")
     plt.yticks(range(0, 101, 10))
-    plt.title("Accuracy during video")
+    plt.title("Accuracy during transcript")
     plt.legend(["Accuracy average (mean)", "Individual words"], loc="lower center")
 
     # not all file systems are writable, so we allow specifying a writable tmp directory
