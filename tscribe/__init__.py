@@ -7,6 +7,7 @@ import json, datetime
 import matplotlib.pyplot as plt
 import statistics
 from pathlib import Path
+from time import perf_counter
 
 
 def convert_time_stamp(n):
@@ -18,6 +19,8 @@ def convert_time_stamp(n):
 
 def write(file, **kwargs):
     """ Write a transcript from the .json transcription file. """
+
+    start = perf_counter()
 
     # Initiate Document
     document = Document()
@@ -226,4 +229,8 @@ def write(file, **kwargs):
     # Save
     filename = kwargs.get("save_as", f"{data['jobName']}.docx")
     document.save(filename)
-    print(f"Transcript {filename} writen.")
+
+    finish = perf_counter()
+    duration = round(finish - start, 2)
+
+    print(f"Transcript {filename} writen in {duration} seconds.")
