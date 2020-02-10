@@ -172,7 +172,7 @@ def write(file, **kwargs):
                     # Get the word with the highest confidence
                     pronunciations = list(filter(lambda x: x["type"] == "pronunciation", data["results"]["items"]))
                     word_result = list(filter(lambda x: x["start_time"] == word["start_time"] and x["end_time"] == word["end_time"], pronunciations))
-                    result = sorted(word_result[0]["alternatives"], key=lambda x: x["confidence"])[0]
+                    result = sorted(word_result[-1]["alternatives"], key=lambda x: x["confidence"])[-1]
 
                     # Write the word
                     run = row_cells[2].paragraphs[0].add_run(" " + result["content"])
@@ -199,7 +199,7 @@ def write(file, **kwargs):
         for word in data["results"]["items"]:
 
             # Get the word with the highest confidence
-            result = sorted(word["alternatives"], key=lambda x: x["confidence"])[0]
+            result = sorted(word["alternatives"], key=lambda x: x["confidence"])[-1]
 
             # Write the word
             run = row_cells[2].paragraphs[0].add_run(" " + result["content"])
