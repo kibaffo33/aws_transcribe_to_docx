@@ -142,6 +142,7 @@ def write(file, **kwargs):
     chart_file_name = tmp_dir + "chart.png"
 
     plt.savefig(chart_file_name)
+    plt.clf()
     document.add_picture(chart_file_name, width=Cm(14.64))
     document.paragraphs[-1].alignment = WD_ALIGN_PARAGRAPH.CENTER
     document.add_page_break()
