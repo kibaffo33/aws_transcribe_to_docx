@@ -79,7 +79,6 @@ def make_graph(stats, dir):
 
     # Formatting
     plt.xlabel("Time (seconds)")
-    # plt.xticks(range(0, int(stats['timestamps'][-1]), 60))
     plt.ylabel("Accuracy (percent)")
     plt.yticks(range(0, 101, 10))
     plt.title("Accuracy during transcript")

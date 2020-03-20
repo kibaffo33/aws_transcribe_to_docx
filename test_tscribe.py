@@ -10,26 +10,8 @@ from docx import Document
 
 sample_files = [
     "sample_single.json", 
-    "sample_multiple.json",]
-"""
-    "B1.json",
-    "B2.json",
-    "B3.json",
-    "B4.json",
-    "B5.json",
-    "S1.json",
-    "S2.json",
-    "S3.json",
-    "S4.json",
-    "S5.json",
-    "V1.json",
-    "V2.json",
-    "V3.json",
-    "V4.json",
-    "V5.json",
-    "V5_2speakers_nodict.json"
-]
-"""
+    "sample_multiple.json",
+    ]
 
 
 @pytest.mark.parametrize("time_stamp,expected", [("1.0", "0:00:01"), ("2.5", "0:00:02"), ("60.0", "0:01:00"), ("3600", "1:00:00")])
