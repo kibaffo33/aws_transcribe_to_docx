@@ -357,6 +357,11 @@ def write(file, **kwargs):
 
     # Output
     output_format = kwargs.get("format", "docx")
+
+    # Deprecated tmp_dir by improving save_as
+    if kwargs.get("tmp_dir"):
+        import warnings
+        warnings.warn("tmp_dir is deprecated, specify path in save_as instead", DeprecationWarning)
     
     # Output to docx (default behaviour)
     if output_format == "docx":
