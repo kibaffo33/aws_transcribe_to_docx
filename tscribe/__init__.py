@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 import statistics
 from pathlib import Path
 from time import perf_counter
+import pandas
+import sqlite3
 
 
 def convert_time_stamp(n):
@@ -17,36 +19,27 @@ def convert_time_stamp(n):
     return str(ts)
 
 
-def write(file, **kwargs):
-    """ Write a transcript from the .json transcription file. """
+def load_json(file):
+    """Load in JSON file and return as dict"""
 
-    start = perf_counter()
-
-    # Initiate Document
-    document = Document()
-    # A4 Size
-    document.sections[0].page_width = Mm(210)
-    document.sections[0].page_height = Mm(297)
-    # Font
-    font = document.styles["Normal"].font
-    font.name = "Calibri"
-
-    # Load Transcription output
     json_filepath = Path(file)
     assert json_filepath.is_file(), "JSON file does not exist"
+
     data = json.load(open(json_filepath.absolute(), "r", encoding="utf-8"))
+    assert "jobName" in data
+    assert "results" in data
+    assert "status" in data
+    
     assert data["status"] == "COMPLETED", "JSON file not shown as completed."
 
-    # Document title and intro
-    title = f"Transcription of {data['jobName']}"
-    document.add_heading(title, level=1)
-    # Set thresholds for formatting later
-    threshold_for_grey = 0.98
-    # Intro
-    document.add_paragraph("Transcription using AWS Transcribe automatic speech recognition.")
-    document.add_paragraph(datetime.datetime.now().strftime("Document produced on %A %d %B %Y at %X using the 'tscribe' python package."))
-    document.add_paragraph()  # Spacing
-    document.add_paragraph(f"Grey text has less than {int(threshold_for_grey * 100)}% confidence.")
+    return data
+
+
+def confidence_stats(data):
+    """Confidence Statistics"""
+
+    # Assign data to variable
+    data = data
 
     # Stats dictionary
     stats = {
@@ -71,6 +64,144 @@ def write(file, **kwargs):
             elif float(item["alternatives"][0]["confidence"]) >= 0.2: stats["2"] += 1
             elif float(item["alternatives"][0]["confidence"]) >= 0.1: stats["1"] += 1
             else: stats["0"] += 1
+    
+    return stats
+
+
+def make_graph(stats, dir):
+    """Make scatter graph from confidence statistics"""
+
+    # Confidence of each word as scatter graph
+    plt.scatter(stats["timestamps"], stats["accuracy"])
+
+    # Mean average as line across graph
+    plt.plot([stats["timestamps"][0], stats["timestamps"][-1]], [statistics.mean(stats["accuracy"]), statistics.mean(stats["accuracy"])], "r")
+
+    # Formatting
+    plt.xlabel("Time (seconds)")
+    # plt.xticks(range(0, int(stats['timestamps'][-1]), 60))
+    plt.ylabel("Accuracy (percent)")
+    plt.yticks(range(0, 101, 10))
+    plt.title("Accuracy during transcript")
+    plt.legend(["Accuracy average (mean)", "Individual words"], loc="lower center")
+
+    # Target filename, including dir for explicit path 
+    filename = Path(dir + "/chart.png")
+
+    plt.savefig(filename)
+    plt.clf()
+
+    return str(filename)
+
+    
+def decode_transcript(data):
+    """Decode the transcript into a pandas dataframe"""
+
+    # Assign data to variable
+    data = data
+
+    decoded_data = {
+        "time": [],
+        "speaker": [],
+        "comment": []
+    }
+
+    # If speaker identification
+    if "speaker_labels" in data["results"].keys():
+
+        # A segment is a blob of pronounciation and punctuation by an individual speaker
+        for segment in data["results"]["speaker_labels"]["segments"]:
+
+            # If there is content in the segment, add a row, write the time and speaker
+            if len(segment["items"]) > 0:
+                decoded_data['time'].append(convert_time_stamp(segment["start_time"]))
+                decoded_data['speaker'].append(segment["speaker_label"])
+                decoded_data['comment'].append("")
+
+                # For each word in the segment...
+                for word in segment["items"]:
+
+                    # Get the word with the highest confidence
+                    pronunciations = list(filter(lambda x: x["type"] == "pronunciation", data["results"]["items"]))
+                    word_result = list(filter(lambda x: x["start_time"] == word["start_time"] and x["end_time"] == word["end_time"], pronunciations))
+                    result = sorted(word_result[-1]["alternatives"], key=lambda x: x["confidence"])[-1]
+
+                    # Write the word
+                    decoded_data["comment"][-1] += " " + result["content"]
+
+                    # If the next item is punctuation, write it
+                    try:
+                        word_result_index = data["results"]["items"].index(word_result[0])
+                        next_item = data["results"]["items"][word_result_index + 1]
+                        if next_item["type"] == "punctuation":
+                            decoded_data["comment"][-1] += next_item["alternatives"][0]["content"]
+                    except IndexError:
+                        pass
+
+    # Else no speaker identification
+    else:
+
+        decoded_data['time'].append("")
+        decoded_data['speaker'].append("")
+        decoded_data['comment'].append("")
+
+        # Add words
+        for word in data["results"]["items"]:
+
+            # Get the word with the highest confidence
+            result = sorted(word["alternatives"], key=lambda x: x["confidence"])[-1]
+
+            # Write the word
+            decoded_data["comment"][-1] += " " + result["content"]
+
+            # If the next item is punctuation, write it
+            try:
+                word_result_index = data["results"]["items"].index(word)
+                next_item = data["results"]["items"][word_result_index + 1]
+                if next_item["type"] == "punctuation":
+                    decoded_data["comment"][-1] += next_item["alternatives"][0]["content"]
+            except IndexError:
+                pass
+
+    # Produce pandas dataframe
+    df = pandas.DataFrame(decoded_data, columns=["time", "speaker", "comment"])
+
+    # Clean leading whitespace
+    df['comment'] = df['comment'].str.lstrip()
+
+    return df
+
+
+def write_docx(data, filename, **kwargs):
+    """ Write a transcript from the .json transcription file. """
+
+    output_filename = Path(filename)
+
+    # Initiate Document
+    document = Document()
+    # A4 Size
+    document.sections[0].page_width = Mm(210)
+    document.sections[0].page_height = Mm(297)
+    # Font
+    font = document.styles["Normal"].font
+    font.name = "Calibri"
+
+    # Assign data to variable
+    data = data
+
+    # Document title and intro
+    title = f"Transcription of {data['jobName']}"
+    document.add_heading(title, level=1)
+    # Set thresholds for formatting later
+    threshold_for_grey = 0.98
+    # Intro
+    document.add_paragraph("Transcription using AWS Transcribe automatic speech recognition.")
+    document.add_paragraph(datetime.datetime.now().strftime("Document produced on %A %d %B %Y at %X using the 'tscribe' python package."))
+    document.add_paragraph()  # Spacing
+    document.add_paragraph(f"Grey text has less than {int(threshold_for_grey * 100)}% confidence.")
+
+    # Get stats
+    stats = confidence_stats(data)
 
     # Display confidence count table
     table = document.add_table(rows=1, cols=3)
@@ -126,27 +257,9 @@ def write(file, **kwargs):
     row_cells[2].text = str(round(stats["0"] / stats["total"] * 100, 2)) + "%"
     # Add paragraph for spacing
     document.add_paragraph()
-    # Display scatter graph of confidence
-    # Confidence of each word as scatter graph
-    plt.scatter(stats["timestamps"], stats["accuracy"])
-    # Mean average as line across graph
-    plt.plot([stats["timestamps"][0], stats["timestamps"][-1]], [statistics.mean(stats["accuracy"]), statistics.mean(stats["accuracy"])], "r")
-    # Formatting
-    plt.xlabel("Time (seconds)")
-    # plt.xticks(range(0, int(stats['timestamps'][-1]), 60))
-    plt.ylabel("Accuracy (percent)")
-    plt.yticks(range(0, 101, 10))
-    plt.title("Accuracy during transcript")
-    plt.legend(["Accuracy average (mean)", "Individual words"], loc="lower center")
 
-    # not all file systems are writable, so we allow specifying a writable tmp directory
-    # alternatively if it is not set, we use ./
-    tmp_dir = kwargs.get("tmp_dir", "./")
-    chart_file_name = tmp_dir + "chart.png"
-
-    plt.savefig(chart_file_name)
-    plt.clf()
-    document.add_picture(chart_file_name, width=Cm(14.64))
+    graph = make_graph(stats, str(output_filename.parent))
+    document.add_picture(graph, width=Cm(14.64))
     document.paragraphs[-1].alignment = WD_ALIGN_PARAGRAPH.CENTER
     document.add_page_break()
 
@@ -227,10 +340,46 @@ def write(file, **kwargs):
             row.cells[idx].width = width
 
     # Save
-    filename = kwargs.get("save_as", f"{data['jobName']}.docx")
     document.save(filename)
 
+
+def write(file, **kwargs):
+    """|"""
+
+    # Performance timer start
+    start = perf_counter()
+
+    # Load json file as dict
+    data = load_json(file)
+
+    # Decode transcript
+    df = decode_transcript(data)
+
+    # Output
+    output_format = kwargs.get("format", "docx")
+    
+    # Output to docx (default behaviour)
+    if output_format == "docx":
+        filename = kwargs.get("save_as", f"{data['jobName']}.docx")
+        write_docx(data, filename)
+    
+    # Output to CSV
+    elif output_format == "csv":
+        filename = kwargs.get("save_as", f"{data['jobName']}.csv")
+        df.to_csv(filename)
+    
+    # Output to sqlite
+    elif output_format == "sqlite":
+        filename = kwargs.get("save_as", f"{data['jobName']}.db")
+        conn = sqlite3.connect(filename)
+        df.to_sql("transcript", conn)
+        conn.close()
+
+    else:
+        raise Exception("Output format should be 'docx', 'csv' or 'sqlite'")
+
+    # Performance timer finish
     finish = perf_counter()
     duration = round(finish - start, 2)
 
-    print(f"Transcript {filename} writen in {duration} seconds.")
+    print(f"{filename} written in {duration} seconds.")

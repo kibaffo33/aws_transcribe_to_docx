@@ -1,9 +1,11 @@
 cycler==0.10.0
 kiwisolver==1.1.0
 lxml==4.5.0
-matplotlib==3.1.3
-numpy==1.18.1
+matplotlib==3.2.1
+numpy==1.18.2
+pandas==1.0.3
 pyparsing==2.4.6
 python-dateutil==2.8.1
 python-docx==0.8.10
+pytz==2019.3
 six==1.14.0
