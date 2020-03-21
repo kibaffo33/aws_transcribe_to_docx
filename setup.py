@@ -5,7 +5,7 @@ with open("README.md", "r") as f:
 
 setuptools.setup(
     name="tscribe",
-    version="1.2.0",
+    version="1.2.1",
     author="Robert Williams",
     author_email="robertedwardwilliams@me.com",
     description="Produce .docx transcriptions from AWS Transcribe output.",
