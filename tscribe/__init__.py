@@ -375,7 +375,7 @@ def write(file, **kwargs):
     # Output to sqlite
     elif output_format == "sqlite":
         filename = kwargs.get("save_as", f"{data['jobName']}.db")
-        conn = sqlite3.connect(filename)
+        conn = sqlite3.connect(str(filename))
         df.to_sql("transcript", conn)
         conn.close()
 
