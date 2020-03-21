@@ -343,7 +343,7 @@ def write_docx(data, filename, **kwargs):
 
 
 def write(file, **kwargs):
-    """|"""
+    """Main function, write transcript file from json"""
 
     # Performance timer start
     start = perf_counter()
