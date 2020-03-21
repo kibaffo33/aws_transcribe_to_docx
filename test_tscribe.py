@@ -244,7 +244,7 @@ def test_write_to_sqlite(input_file):
     # THEN check output exists and contains content
     assert output_filename.is_file(), "Output file should exist"
 
-    conn = sqlite3.connect(output_filename)
+    conn = sqlite3.connect(str(output_filename))
     c = conn.cursor()
     c.execute("SELECT * FROM transcript")
     query = c.fetchall()
