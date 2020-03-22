@@ -11,6 +11,7 @@ from docx import Document
 sample_files = [
     "sample_single.json", 
     "sample_multiple.json",
+    "sample_channels.json",
     ]
 
 
