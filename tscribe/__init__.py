@@ -304,6 +304,54 @@ def write_docx(data, filename, **kwargs):
                             run = row_cells[2].paragraphs[0].add_run(next_item["alternatives"][0]["content"])
                     except IndexError:
                         pass
+    
+    # If channel identification
+    elif "channel_labels" in data["results"].keys():
+
+        l = list()
+
+        # A channel is a blob of pronounciation and punctuation by an individual speaker
+        for channel in data["results"]["channel_labels"]["channels"]:
+
+            if len(channel["items"]) > 0:
+                channel_label = str(channel["channel_label"])
+
+                # For each word in the segment...
+                for word in channel["items"]:
+                    if not "start_time" in word.keys():
+                        continue
+                    
+                    word["channel_label"] = channel_label
+                    l.append(word)
+        
+        if len(l) > 0:
+            sortedList = sorted(l, key=lambda x: x["start_time"])
+
+            # For each word in the segment...
+            for word in sortedList:
+                row_cells = table.add_row().cells
+                row_cells[0].text = convert_time_stamp(word["start_time"])
+                row_cells[1].text = str(word["channel_label"])
+
+                # Get the word with the highest confidence
+                pronunciations = list(filter(lambda x: x["type"] == "pronunciation", data["results"]["items"]))
+                word_result = list(filter(lambda x: x["start_time"] == word["start_time"] and x["end_time"] == word["end_time"], pronunciations))
+                result = sorted(word_result[-1]["alternatives"], key=lambda x: x["confidence"])[-1]
+
+                # Write the word
+                run = row_cells[2].paragraphs[0].add_run(" " + result["content"])
+                if float(result["confidence"]) < threshold_for_grey:
+                    font = run.font
+                    font.color.rgb = RGBColor(204, 204, 204)
+
+                # If the next item is punctuation, write it
+                try:
+                    word_result_index = data["results"]["items"].index(word_result[0])
+                    next_item = data["results"]["items"][word_result_index + 1]
+                    if next_item["type"] == "punctuation":
+                        run = row_cells[2].paragraphs[0].add_run(next_item["alternatives"][0]["content"])
+                except IndexError:
+                    pass
 
     # Else no speaker identification
     else:
