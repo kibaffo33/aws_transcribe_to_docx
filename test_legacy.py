@@ -57,7 +57,7 @@ def test_multiple_speakers_with_save_as():
 # This works on the assumption that if you have permission to write to the dir for the
 # output docx, you should have permission to write an image to that dir too
 # Therefore no need to explicitly specify where the chart is written to, seperate to the docx
-@pytest.mark.skip
+@pytest.mark.xfail(reason="Deprecated")
 def test_multiple_speakers_with_save_as_with_tmp_dir():
     """
     Test output exists with multiple speaker input, and save_as defined, and tmp_dir defined
@@ -136,7 +136,7 @@ def test_single_speaker_with_save_as():
 # This works on the assumption that if you have permission to write to the dir for the
 # output docx, you should have permission to write an image to that dir too
 # Therefore no need to explicitly specify where the chart is written to, seperate to the docx
-@pytest.mark.skip
+@pytest.mark.xfail(reason="Deprecated")
 def test_single_speaker_with_save_as_with_tmp_dir():
     """
     Test output exists with single speaker input, and save_as defined, and tmp_dir defined
