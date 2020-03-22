@@ -8,7 +8,7 @@ setuptools.setup(
     version="1.2.1",
     author="Robert Williams",
     author_email="robertedwardwilliams@me.com",
-    description="Produce .docx transcriptions from AWS Transcribe output.",
+    description="Produce Word Document, CSV or SQLite transcriptions using the automatic speech recognition from AWS Transcribe.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/kibaffo33/aws_transcribe_to_docx",
