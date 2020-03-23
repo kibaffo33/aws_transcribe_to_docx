@@ -213,12 +213,12 @@ def write(file, **kwargs):
                     l.append(word)
         
         if len(l) > 0:
-            sortedList = sorted(l, key=lambda x: x["start_time"])
+            sortedList = sorted(l, key=lambda x: float(x["start_time"]))
 
             # For each word in the segment...
             for word in sortedList:
                 row_cells = table.add_row().cells
-                row_cells[0].text = convert_time_stamp(word["start_time"])
+                row_cells[0].text = str(word["start_time"])
                 row_cells[1].text = str(word["channel_label"])
 
                 # Get the word with the highest confidence
