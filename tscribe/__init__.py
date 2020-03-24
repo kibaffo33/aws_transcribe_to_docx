@@ -226,8 +226,8 @@ def write_docx(data, filename, **kwargs):
     # Set thresholds for formatting later
     threshold_for_grey = 0.98
     # Intro
-    document.add_paragraph("Transcription using AWS Transcribe automatic speech recognition.")
-    document.add_paragraph(datetime.datetime.now().strftime("Document produced on %A %d %B %Y at %X using the 'tscribe' python package."))
+    document.add_paragraph("Transcription using AWS Transcribe automatic speech recognition and the 'tscribe' python package.")
+    document.add_paragraph(datetime.datetime.now().strftime("Document produced on %A %d %B %Y at %X."))
     document.add_paragraph()  # Spacing
     document.add_paragraph(f"Grey text has less than {int(threshold_for_grey * 100)}% confidence.")
 
