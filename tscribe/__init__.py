@@ -136,8 +136,41 @@ def decode_transcript(data):
                             decoded_data["comment"][-1] += next_item["alternatives"][0]["content"]
                     except IndexError:
                         pass
+    
 
-    # Else no speaker identification
+    # If channel identification
+    elif "channel_labels" in data["results"].keys():
+
+        # For each word in the results
+        for word in data["results"]["items"]:
+
+            # Identify the channel
+            channel = list(filter(lambda x: word in x["items"], data["results"]["channel_labels"]["channels"]))[0]["channel_label"]
+
+            # If on the still on the same channel, add the current word to the line
+            if channel in decoded_data["speaker"] and decoded_data["speaker"][-1] == channel:
+                current_word = sorted(word["alternatives"], key=lambda x: x["confidence"])[-1]
+                decoded_data["comment"][-1] += " " + current_word["content"]
+
+            # Else start a new line
+            else:
+                decoded_data["time"].append(convert_time_stamp(word["start_time"]))
+                decoded_data["speaker"].append(channel)
+                current_word = sorted(word["alternatives"], key=lambda x: x["confidence"])[-1]
+                decoded_data["comment"].append(current_word["content"])
+            
+            # If the next item is punctuation, write it
+            try:
+                word_result_index = data["results"]["items"].index(word)
+                next_item = data["results"]["items"][word_result_index + 1]
+                if next_item["type"] == "punctuation":
+                    print(next_item)
+                    decoded_data["comment"][-1] += next_item["alternatives"][0]["content"]
+            except IndexError:
+                        pass
+    
+    
+    # Neither speaker nor channel identification
     else:
 
         decoded_data['time'].append("")
