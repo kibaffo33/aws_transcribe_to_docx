@@ -8,14 +8,13 @@ import sqlite3
 from docx import Document
 
 
-sample_files = [
-    "sample_single.json", 
-    "sample_multiple.json",
-    "sample_channels.json",
-    ]
+sample_files = ["sample_single.json", "sample_multiple.json", "sample_channels.json"]
 
 
-@pytest.mark.parametrize("time_stamp,expected", [("1.0", "0:00:01"), ("2.5", "0:00:02"), ("60.0", "0:01:00"), ("3600", "1:00:00")])
+@pytest.mark.parametrize(
+    "time_stamp,expected",
+    [("1.0", "0:00:01"), ("2.5", "0:00:02"), ("60.0", "0:01:00"), ("3600", "1:00:00")],
+)
 def test_convert_time_stamp(time_stamp, expected):
     """
     Test timetsamp conversion utility function
@@ -39,7 +38,9 @@ def test_convert_time_stamp(time_stamp, expected):
     minutes = int(result[1]) * 60
     hours = int(result[0]) * 60 * 60
     total_seconds = seconds + minutes + hours
-    assert int(float(time_stamp)) == total_seconds, f"Reverse calculation of {time_stamp} shoud be {total_seconds}"
+    assert (
+        int(float(time_stamp)) == total_seconds
+    ), f"Reverse calculation of {time_stamp} shoud be {total_seconds}"
 
 
 @pytest.mark.parametrize("input_file", sample_files)
@@ -104,7 +105,7 @@ def test_make_graph(input_file):
     WHEN calling make_graph(...)
     THEN produce chart.png
     """
-    
+
     filepath = Path("chart.png")
 
     # Ensure blank slate
@@ -141,18 +142,22 @@ def test_decode_transcript(input_file):
     df = tscribe.decode_transcript(data)
 
     # THEN
-    assert isinstance(df, pandas.DataFrame), "decode_transcript should return a Pandas Data Frame"
+    assert isinstance(
+        df, pandas.DataFrame
+    ), "decode_transcript should return a Pandas Data Frame"
 
     rows, cols = df.shape
-    
+
     assert cols == 3, "Dataframe should have three columns"
 
     if input_file == "sample_single.json":
         # TODO
         pass
-    
+
     if input_file == "sample_multiple.json":
-        assert rows == len(data['results']['speaker_labels']['segments']), "Rows should match number of segments"
+        assert rows == len(
+            data["results"]["speaker_labels"]["segments"]
+        ), "Rows should match number of segments"
 
 
 @pytest.mark.parametrize("input_file", sample_files)
@@ -174,24 +179,38 @@ def test_write_to_docx(input_file):
     assert output_filename.is_file(), "Output file should exist"
 
     document = Document(output_filename)
-    
-    assert len(document.tables) == 2, "Document should contain two tables, stats and transcript"
 
-    t_conf = document.tables[0].cell(0,0).text
-    t_count = document.tables[0].cell(0,1).text
-    t_perc = document.tables[0].cell(0,2).text
-    assert (t_conf, t_count, t_perc) == ("Confidence", "Count", "Percentage"), "First table should be stats headers"
+    assert (
+        len(document.tables) == 2
+    ), "Document should contain two tables, stats and transcript"
+
+    t_conf = document.tables[0].cell(0, 0).text
+    t_count = document.tables[0].cell(0, 1).text
+    t_perc = document.tables[0].cell(0, 2).text
+    assert (t_conf, t_count, t_perc) == (
+        "Confidence",
+        "Count",
+        "Percentage",
+    ), "First table should be stats headers"
     assert len(document.tables[0].rows) == 12, "Stats table should hold 12 rows"
 
-    t_time = document.tables[1].cell(0,0).text
-    t_speaker = document.tables[1].cell(0,1).text
-    t_content = document.tables[1].cell(0,2).text
-    assert (t_time, t_speaker, t_content) == ("Time", "Speaker", "Content"), "Second table should be transcript headers"
+    t_time = document.tables[1].cell(0, 0).text
+    t_speaker = document.tables[1].cell(0, 1).text
+    t_content = document.tables[1].cell(0, 2).text
+    assert (t_time, t_speaker, t_content) == (
+        "Time",
+        "Speaker",
+        "Content",
+    ), "Second table should be transcript headers"
     data = tscribe.load_json(input_file)
     df = tscribe.decode_transcript(data)
-    assert len(document.tables[1].rows) == len(df) + 1, "Second table should be length of dataframe + headers"
+    assert (
+        len(document.tables[1].rows) == len(df) + 1
+    ), "Second table should be length of dataframe + headers"
 
-    assert "chart.png" in document.paragraphs[6]._p.xml, "Chart should be in paragraph six"
+    assert (
+        "chart.png" in document.paragraphs[6]._p.xml
+    ), "Chart should be in paragraph six"
 
     # Teardown
     os.remove(output_filename)
@@ -215,7 +234,7 @@ def test_write_to_csv(input_file):
     # THEN check output exists and contains content
     assert output_filename.is_file(), "Output file should exist"
 
-    with open(output_filename, 'r') as file:
+    with open(output_filename, "r") as file:
         lines = file.readlines()
 
     data = tscribe.load_json(input_file)
@@ -298,12 +317,14 @@ def test_save_as(input_file, output_format, location):
         os.mkdir("output")
 
     # GIVEN locations of current or specific folder
-    output_filename = Path(location) / Path(input_file.replace(".json", f".{output_format}"))
+    output_filename = Path(location) / Path(
+        input_file.replace(".json", f".{output_format}")
+    )
 
     # WHEN writing transcript in any supported format
     tscribe.write(input_file, format=output_format, save_as=output_filename)
 
     # THEN check output exists
     assert output_filename.is_file()
-    
+
     os.remove(output_filename)

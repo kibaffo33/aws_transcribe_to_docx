@@ -29,7 +29,7 @@ def load_json(file):
     assert "jobName" in data
     assert "results" in data
     assert "status" in data
-    
+
     assert data["status"] == "COMPLETED", "JSON file not shown as completed."
 
     return data
@@ -45,26 +45,50 @@ def confidence_stats(data):
     stats = {
         "timestamps": [],
         "accuracy": [],
-        "9.8": 0, "9": 0, "8": 0, "7": 0, "6": 0, "5": 0, "4": 0, "3": 0, "2": 0, "1": 0, "0": 0,
-        "total": len(data["results"]["items"])}
+        "9.8": 0,
+        "9": 0,
+        "8": 0,
+        "7": 0,
+        "6": 0,
+        "5": 0,
+        "4": 0,
+        "3": 0,
+        "2": 0,
+        "1": 0,
+        "0": 0,
+        "total": len(data["results"]["items"]),
+    }
 
     # Confidence count
     for item in data["results"]["items"]:
         if item["type"] == "pronunciation":
             stats["timestamps"].append(float(item["start_time"]))
-            stats["accuracy"].append(int(float(item["alternatives"][0]["confidence"]) * 100))
-            if float(item["alternatives"][0]["confidence"]) >= 0.98: stats["9.8"] += 1
-            elif float(item["alternatives"][0]["confidence"]) >= 0.9: stats["9"] += 1
-            elif float(item["alternatives"][0]["confidence"]) >= 0.8: stats["8"] += 1
-            elif float(item["alternatives"][0]["confidence"]) >= 0.7: stats["7"] += 1
-            elif float(item["alternatives"][0]["confidence"]) >= 0.6: stats["6"] += 1
-            elif float(item["alternatives"][0]["confidence"]) >= 0.5: stats["5"] += 1
-            elif float(item["alternatives"][0]["confidence"]) >= 0.4: stats["4"] += 1
-            elif float(item["alternatives"][0]["confidence"]) >= 0.3: stats["3"] += 1
-            elif float(item["alternatives"][0]["confidence"]) >= 0.2: stats["2"] += 1
-            elif float(item["alternatives"][0]["confidence"]) >= 0.1: stats["1"] += 1
-            else: stats["0"] += 1
-    
+            stats["accuracy"].append(
+                int(float(item["alternatives"][0]["confidence"]) * 100)
+            )
+            if float(item["alternatives"][0]["confidence"]) >= 0.98:
+                stats["9.8"] += 1
+            elif float(item["alternatives"][0]["confidence"]) >= 0.9:
+                stats["9"] += 1
+            elif float(item["alternatives"][0]["confidence"]) >= 0.8:
+                stats["8"] += 1
+            elif float(item["alternatives"][0]["confidence"]) >= 0.7:
+                stats["7"] += 1
+            elif float(item["alternatives"][0]["confidence"]) >= 0.6:
+                stats["6"] += 1
+            elif float(item["alternatives"][0]["confidence"]) >= 0.5:
+                stats["5"] += 1
+            elif float(item["alternatives"][0]["confidence"]) >= 0.4:
+                stats["4"] += 1
+            elif float(item["alternatives"][0]["confidence"]) >= 0.3:
+                stats["3"] += 1
+            elif float(item["alternatives"][0]["confidence"]) >= 0.2:
+                stats["2"] += 1
+            elif float(item["alternatives"][0]["confidence"]) >= 0.1:
+                stats["1"] += 1
+            else:
+                stats["0"] += 1
+
     return stats
 
 
@@ -75,7 +99,11 @@ def make_graph(stats, dir):
     plt.scatter(stats["timestamps"], stats["accuracy"])
 
     # Mean average as line across graph
-    plt.plot([stats["timestamps"][0], stats["timestamps"][-1]], [statistics.mean(stats["accuracy"]), statistics.mean(stats["accuracy"])], "r")
+    plt.plot(
+        [stats["timestamps"][0], stats["timestamps"][-1]],
+        [statistics.mean(stats["accuracy"]), statistics.mean(stats["accuracy"])],
+        "r",
+    )
 
     # Formatting
     plt.xlabel("Time (seconds)")
@@ -84,7 +112,7 @@ def make_graph(stats, dir):
     plt.title("Accuracy during transcript")
     plt.legend(["Accuracy average (mean)", "Individual words"], loc="lower center")
 
-    # Target filename, including dir for explicit path 
+    # Target filename, including dir for explicit path
     filename = Path(dir + "/chart.png")
 
     plt.savefig(filename)
@@ -92,18 +120,14 @@ def make_graph(stats, dir):
 
     return str(filename)
 
-    
+
 def decode_transcript(data):
     """Decode the transcript into a pandas dataframe"""
 
     # Assign data to variable
     data = data
 
-    decoded_data = {
-        "time": [],
-        "speaker": [],
-        "comment": []
-    }
+    decoded_data = {"time": [], "speaker": [], "comment": []}
 
     # If speaker identification
     if "speaker_labels" in data["results"].keys():
@@ -113,30 +137,46 @@ def decode_transcript(data):
 
             # If there is content in the segment, add a row, write the time and speaker
             if len(segment["items"]) > 0:
-                decoded_data['time'].append(convert_time_stamp(segment["start_time"]))
-                decoded_data['speaker'].append(segment["speaker_label"])
-                decoded_data['comment'].append("")
+                decoded_data["time"].append(convert_time_stamp(segment["start_time"]))
+                decoded_data["speaker"].append(segment["speaker_label"])
+                decoded_data["comment"].append("")
 
                 # For each word in the segment...
                 for word in segment["items"]:
 
                     # Get the word with the highest confidence
-                    pronunciations = list(filter(lambda x: x["type"] == "pronunciation", data["results"]["items"]))
-                    word_result = list(filter(lambda x: x["start_time"] == word["start_time"] and x["end_time"] == word["end_time"], pronunciations))
-                    result = sorted(word_result[-1]["alternatives"], key=lambda x: x["confidence"])[-1]
+                    pronunciations = list(
+                        filter(
+                            lambda x: x["type"] == "pronunciation",
+                            data["results"]["items"],
+                        )
+                    )
+                    word_result = list(
+                        filter(
+                            lambda x: x["start_time"] == word["start_time"]
+                            and x["end_time"] == word["end_time"],
+                            pronunciations,
+                        )
+                    )
+                    result = sorted(
+                        word_result[-1]["alternatives"], key=lambda x: x["confidence"]
+                    )[-1]
 
                     # Write the word
                     decoded_data["comment"][-1] += " " + result["content"]
 
                     # If the next item is punctuation, write it
                     try:
-                        word_result_index = data["results"]["items"].index(word_result[0])
+                        word_result_index = data["results"]["items"].index(
+                            word_result[0]
+                        )
                         next_item = data["results"]["items"][word_result_index + 1]
                         if next_item["type"] == "punctuation":
-                            decoded_data["comment"][-1] += next_item["alternatives"][0]["content"]
+                            decoded_data["comment"][-1] += next_item["alternatives"][0][
+                                "content"
+                            ]
                     except IndexError:
                         pass
-    
 
     # If channel identification
     elif "channel_labels" in data["results"].keys():
@@ -149,36 +189,49 @@ def decode_transcript(data):
                 continue
 
             # Identify the channel
-            channel = list(filter(lambda x: word in x["items"], data["results"]["channel_labels"]["channels"]))[0]["channel_label"]
+            channel = list(
+                filter(
+                    lambda x: word in x["items"],
+                    data["results"]["channel_labels"]["channels"],
+                )
+            )[0]["channel_label"]
 
             # If still on the same channel, add the current word to the line
-            if channel in decoded_data["speaker"] and decoded_data["speaker"][-1] == channel:
-                current_word = sorted(word["alternatives"], key=lambda x: x["confidence"])[-1]
+            if (
+                channel in decoded_data["speaker"]
+                and decoded_data["speaker"][-1] == channel
+            ):
+                current_word = sorted(
+                    word["alternatives"], key=lambda x: x["confidence"]
+                )[-1]
                 decoded_data["comment"][-1] += " " + current_word["content"]
 
             # Else start a new line
             else:
                 decoded_data["time"].append(convert_time_stamp(word["start_time"]))
                 decoded_data["speaker"].append(channel)
-                current_word = sorted(word["alternatives"], key=lambda x: x["confidence"])[-1]
+                current_word = sorted(
+                    word["alternatives"], key=lambda x: x["confidence"]
+                )[-1]
                 decoded_data["comment"].append(current_word["content"])
-            
+
             # If the next item is punctuation, write it
             try:
                 word_result_index = data["results"]["items"].index(word)
                 next_item = data["results"]["items"][word_result_index + 1]
                 if next_item["type"] == "punctuation":
-                    decoded_data["comment"][-1] += next_item["alternatives"][0]["content"]
+                    decoded_data["comment"][-1] += next_item["alternatives"][0][
+                        "content"
+                    ]
             except IndexError:
-                        pass
-    
-    
+                pass
+
     # Neither speaker nor channel identification
     else:
 
-        decoded_data['time'].append("")
-        decoded_data['speaker'].append("")
-        decoded_data['comment'].append("")
+        decoded_data["time"].append("")
+        decoded_data["speaker"].append("")
+        decoded_data["comment"].append("")
 
         # Add words
         for word in data["results"]["items"]:
@@ -194,7 +247,9 @@ def decode_transcript(data):
                 word_result_index = data["results"]["items"].index(word)
                 next_item = data["results"]["items"][word_result_index + 1]
                 if next_item["type"] == "punctuation":
-                    decoded_data["comment"][-1] += next_item["alternatives"][0]["content"]
+                    decoded_data["comment"][-1] += next_item["alternatives"][0][
+                        "content"
+                    ]
             except IndexError:
                 pass
 
@@ -202,7 +257,7 @@ def decode_transcript(data):
     df = pandas.DataFrame(decoded_data, columns=["time", "speaker", "comment"])
 
     # Clean leading whitespace
-    df['comment'] = df['comment'].str.lstrip()
+    df["comment"] = df["comment"].str.lstrip()
 
     return df
 
@@ -230,10 +285,16 @@ def write_docx(data, filename, **kwargs):
     # Set thresholds for formatting later
     threshold_for_grey = 0.98
     # Intro
-    document.add_paragraph("Transcription using AWS Transcribe automatic speech recognition and the 'tscribe' python package.")
-    document.add_paragraph(datetime.datetime.now().strftime("Document produced on %A %d %B %Y at %X."))
+    document.add_paragraph(
+        "Transcription using AWS Transcribe automatic speech recognition and the 'tscribe' python package."
+    )
+    document.add_paragraph(
+        datetime.datetime.now().strftime("Document produced on %A %d %B %Y at %X.")
+    )
     document.add_paragraph()  # Spacing
-    document.add_paragraph(f"Grey text has less than {int(threshold_for_grey * 100)}% confidence.")
+    document.add_paragraph(
+        f"Grey text has less than {int(threshold_for_grey * 100)}% confidence."
+    )
 
     # Get stats
     stats = confidence_stats(data)
@@ -322,9 +383,22 @@ def write_docx(data, filename, **kwargs):
                 for word in segment["items"]:
 
                     # Get the word with the highest confidence
-                    pronunciations = list(filter(lambda x: x["type"] == "pronunciation", data["results"]["items"]))
-                    word_result = list(filter(lambda x: x["start_time"] == word["start_time"] and x["end_time"] == word["end_time"], pronunciations))
-                    result = sorted(word_result[-1]["alternatives"], key=lambda x: x["confidence"])[-1]
+                    pronunciations = list(
+                        filter(
+                            lambda x: x["type"] == "pronunciation",
+                            data["results"]["items"],
+                        )
+                    )
+                    word_result = list(
+                        filter(
+                            lambda x: x["start_time"] == word["start_time"]
+                            and x["end_time"] == word["end_time"],
+                            pronunciations,
+                        )
+                    )
+                    result = sorted(
+                        word_result[-1]["alternatives"], key=lambda x: x["confidence"]
+                    )[-1]
 
                     # Write the word
                     run = row_cells[2].paragraphs[0].add_run(" " + result["content"])
@@ -334,13 +408,19 @@ def write_docx(data, filename, **kwargs):
 
                     # If the next item is punctuation, write it
                     try:
-                        word_result_index = data["results"]["items"].index(word_result[0])
+                        word_result_index = data["results"]["items"].index(
+                            word_result[0]
+                        )
                         next_item = data["results"]["items"][word_result_index + 1]
                         if next_item["type"] == "punctuation":
-                            run = row_cells[2].paragraphs[0].add_run(next_item["alternatives"][0]["content"])
+                            run = (
+                                row_cells[2]
+                                .paragraphs[0]
+                                .add_run(next_item["alternatives"][0]["content"])
+                            )
                     except IndexError:
                         pass
-    
+
     # If channel identification
     elif "channel_labels" in data["results"].keys():
 
@@ -351,39 +431,55 @@ def write_docx(data, filename, **kwargs):
                 continue
 
             # Identify the channel
-            channel = list(filter(lambda x: word in x["items"], data["results"]["channel_labels"]["channels"]))[0]["channel_label"]
-            
+            channel = list(
+                filter(
+                    lambda x: word in x["items"],
+                    data["results"]["channel_labels"]["channels"],
+                )
+            )[0]["channel_label"]
+
             # If still on the same channel, add the current word to the line
             if table.cell(-1, 1).text == channel:
-                current_word = sorted(word["alternatives"], key=lambda x: x["confidence"])[-1]
+                current_word = sorted(
+                    word["alternatives"], key=lambda x: x["confidence"]
+                )[-1]
 
-                run = table.cell(-1, 2).paragraphs[0].add_run(" " + current_word["content"])
+                run = (
+                    table.cell(-1, 2)
+                    .paragraphs[0]
+                    .add_run(" " + current_word["content"])
+                )
                 if float(current_word["confidence"]) < threshold_for_grey:
                     font = run.font
                     font.color.rgb = RGBColor(204, 204, 204)
 
             # Else start a new line
             else:
-                current_word = sorted(word["alternatives"], key=lambda x: x["confidence"])[-1]
+                current_word = sorted(
+                    word["alternatives"], key=lambda x: x["confidence"]
+                )[-1]
 
                 row_cells = table.add_row().cells
                 row_cells[0].text = convert_time_stamp(word["start_time"])
                 row_cells[1].text = channel
-                
+
                 run = row_cells[2].paragraphs[0].add_run(" " + current_word["content"])
                 if float(current_word["confidence"]) < threshold_for_grey:
                     font = run.font
                     font.color.rgb = RGBColor(204, 204, 204)
-            
+
             # If the next item is punctuation, write it
             try:
                 word_result_index = data["results"]["items"].index(word)
                 next_item = data["results"]["items"][word_result_index + 1]
                 if next_item["type"] == "punctuation":
-                    run = row_cells[2].paragraphs[0].add_run(next_item["alternatives"][0]["content"])
+                    run = (
+                        row_cells[2]
+                        .paragraphs[0]
+                        .add_run(next_item["alternatives"][0]["content"])
+                    )
             except IndexError:
-                        pass
-
+                pass
 
     # Else no speaker identification
     else:
@@ -408,7 +504,11 @@ def write_docx(data, filename, **kwargs):
                 word_result_index = data["results"]["items"].index(word)
                 next_item = data["results"]["items"][word_result_index + 1]
                 if next_item["type"] == "punctuation":
-                    run = row_cells[2].paragraphs[0].add_run(next_item["alternatives"][0]["content"])
+                    run = (
+                        row_cells[2]
+                        .paragraphs[0]
+                        .add_run(next_item["alternatives"][0]["content"])
+                    )
             except IndexError:
                 pass
 
@@ -440,18 +540,21 @@ def write(file, **kwargs):
     # Deprecated tmp_dir by improving save_as
     if kwargs.get("tmp_dir"):
         import warnings
-        warnings.warn("tmp_dir is deprecated, specify path in save_as instead", DeprecationWarning)
-    
+
+        warnings.warn(
+            "tmp_dir is deprecated, specify path in save_as instead", DeprecationWarning
+        )
+
     # Output to docx (default behaviour)
     if output_format == "docx":
         filename = kwargs.get("save_as", f"{data['jobName']}.docx")
         write_docx(data, filename)
-    
+
     # Output to CSV
     elif output_format == "csv":
         filename = kwargs.get("save_as", f"{data['jobName']}.csv")
         df.to_csv(filename)
-    
+
     # Output to sqlite
     elif output_format == "sqlite":
         filename = kwargs.get("save_as", f"{data['jobName']}.db")
