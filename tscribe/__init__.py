@@ -144,6 +144,10 @@ def decode_transcript(data):
         # For each word in the results
         for word in data["results"]["items"]:
 
+            # Punctuation items do not include a start_time
+            if "start_time" not in word.keys():
+                continue
+
             # Identify the channel
             channel = list(filter(lambda x: word in x["items"], data["results"]["channel_labels"]["channels"]))[0]["channel_label"]
 
@@ -341,6 +345,10 @@ def write_docx(data, filename, **kwargs):
     elif "channel_labels" in data["results"].keys():
 
         for word in data["results"]["items"]:
+
+            # Punctuation items do not include a start_time
+            if "start_time" not in word.keys():
+                continue
 
             # Identify the channel
             channel = list(filter(lambda x: word in x["items"], data["results"]["channel_labels"]["channels"]))[0]["channel_label"]
