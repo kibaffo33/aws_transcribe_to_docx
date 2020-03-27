@@ -6,6 +6,7 @@ Produce Word Document, CSV or SQLite transcriptions using the automatic speech r
 [![Build Status](https://travis-ci.com/kibaffo33/aws_transcribe_to_docx.svg?branch=master)](https://travis-ci.com/kibaffo33/aws_transcribe_to_docx)
 [![Coverage Status](https://coveralls.io/repos/github/kibaffo33/aws_transcribe_to_docx/badge.svg?branch=master)](https://coveralls.io/github/kibaffo33/aws_transcribe_to_docx?branch=master)
 
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/tscribe)
 [![PyPI version](https://badge.fury.io/py/tscribe.svg)](https://badge.fury.io/py/tscribe)
 
 
