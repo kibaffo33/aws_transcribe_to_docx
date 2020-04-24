@@ -5,7 +5,7 @@ with open("README.md", "r") as f:
 
 setuptools.setup(
     name="tscribe",
-    version="1.3.0",
+    version="1.3.1",
     author="Robert Williams",
     author_email="robertedwardwilliams@me.com",
     description="Produce Word Document, CSV or SQLite transcriptions using the automatic speech recognition from AWS Transcribe.",
