@@ -148,7 +148,7 @@ def test_decode_transcript(input_file):
 
     rows, cols = df.shape
 
-    assert cols == 3, "Dataframe should have three columns"
+    assert cols == 4, "Dataframe should have four columns"
 
     if input_file == "sample_single.json":
         # TODO

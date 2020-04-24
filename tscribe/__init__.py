@@ -129,7 +129,7 @@ def decode_transcript(data):
     # Assign data to variable
     data = data
 
-    decoded_data = {"time": [], "speaker": [], "comment": []}
+    decoded_data = {"start_time": [], "end_time": [], "speaker": [], "comment": []}
 
     # If speaker identification
     if "speaker_labels" in data["results"].keys():
@@ -139,7 +139,8 @@ def decode_transcript(data):
 
             # If there is content in the segment, add a row, write the time and speaker
             if len(segment["items"]) > 0:
-                decoded_data["time"].append(convert_time_stamp(segment["start_time"]))
+                decoded_data["start_time"].append(convert_time_stamp(segment["start_time"]))
+                decoded_data["end_time"].append(convert_time_stamp(segment["end_time"]))
                 decoded_data["speaker"].append(segment["speaker_label"])
                 decoded_data["comment"].append("")
 
@@ -210,7 +211,8 @@ def decode_transcript(data):
 
             # Else start a new line
             else:
-                decoded_data["time"].append(convert_time_stamp(word["start_time"]))
+                decoded_data["start_time"].append(convert_time_stamp(word["start_time"]))
+                decoded_data["end_time"].append(convert_time_stamp(word["end_time"]))
                 decoded_data["speaker"].append(channel)
                 current_word = sorted(
                     word["alternatives"], key=lambda x: x["confidence"]
@@ -231,7 +233,8 @@ def decode_transcript(data):
     # Neither speaker nor channel identification
     else:
 
-        decoded_data["time"].append("")
+        decoded_data["start_time"].append("")
+        decoded_data["end_time"].append("")
         decoded_data["speaker"].append("")
         decoded_data["comment"].append("")
 
@@ -256,7 +259,7 @@ def decode_transcript(data):
                 pass
 
     # Produce pandas dataframe
-    df = pandas.DataFrame(decoded_data, columns=["time", "speaker", "comment"])
+    df = pandas.DataFrame(decoded_data, columns=["start_time", "end_time", "speaker", "comment"])
 
     # Clean leading whitespace
     df["comment"] = df["comment"].str.lstrip()
