@@ -139,7 +139,9 @@ def decode_transcript(data):
 
             # If there is content in the segment, add a row, write the time and speaker
             if len(segment["items"]) > 0:
-                decoded_data["start_time"].append(convert_time_stamp(segment["start_time"]))
+                decoded_data["start_time"].append(
+                    convert_time_stamp(segment["start_time"])
+                )
                 decoded_data["end_time"].append(convert_time_stamp(segment["end_time"]))
                 decoded_data["speaker"].append(segment["speaker_label"])
                 decoded_data["comment"].append("")
@@ -211,7 +213,9 @@ def decode_transcript(data):
 
             # Else start a new line
             else:
-                decoded_data["start_time"].append(convert_time_stamp(word["start_time"]))
+                decoded_data["start_time"].append(
+                    convert_time_stamp(word["start_time"])
+                )
                 decoded_data["end_time"].append(convert_time_stamp(word["end_time"]))
                 decoded_data["speaker"].append(channel)
                 current_word = sorted(
@@ -259,7 +263,9 @@ def decode_transcript(data):
                 pass
 
     # Produce pandas dataframe
-    df = pandas.DataFrame(decoded_data, columns=["start_time", "end_time", "speaker", "comment"])
+    df = pandas.DataFrame(
+        decoded_data, columns=["start_time", "end_time", "speaker", "comment"]
+    )
 
     # Clean leading whitespace
     df["comment"] = df["comment"].str.lstrip()
