@@ -13,7 +13,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/kibaffo33/aws_transcribe_to_docx",
     packages=setuptools.find_packages(),
-    install_requires=["python-docx", "matplotlib", "pandas"],
+    install_requires=["python-docx", "matplotlib", "pandas", "webvtt-py"],
     classifiers=[
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3",

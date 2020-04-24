@@ -6,6 +6,7 @@ from uuid import uuid4
 from pathlib import Path
 import sqlite3
 from docx import Document
+import webvtt
 
 
 sample_files = ["sample_single.json", "sample_multiple.json", "sample_channels.json"]
@@ -273,6 +274,44 @@ def test_write_to_sqlite(input_file):
     df = tscribe.decode_transcript(data)
 
     assert len(query) == len(df), "Database table should be length of dataframe"
+
+    # Teardown
+    os.remove(output_filename)
+
+
+@pytest.mark.parametrize("input_file", sample_files)
+def test_write_to_vtt(input_file):
+    """
+    Test production of vtt format
+
+    GIVEN an input file
+    WHEN writing to vtt
+    THEN check output exists and contains content
+    """
+
+    # GIVEN an input file
+    # WHEN writing to vtt
+    output_filename = Path(f"{uuid4().hex}.vtt")
+    tscribe.write(input_file, save_as=output_filename, format="vtt")
+
+    # THEN check output exists and contains content
+    vtt = webvtt.read(output_filename)
+
+    data = tscribe.load_json(input_file)
+    df = tscribe.decode_transcript(data)
+    assert len(vtt.captions) == len(
+        df
+    ), "vtt file should have equal captions to df rows"
+
+    for caption in vtt.captions:
+
+        assert hasattr(caption, "start"), "each caption should have a start_time"
+        assert hasattr(caption, "end"), "each caption should have a end_time"
+        assert hasattr(caption, "text"), "each caption should have text"
+        if input_file != "sample_single.json":
+            assert hasattr(
+                caption, "identifier"
+            ), "each caption should have an identifier"
 
     # Teardown
     os.remove(output_filename)

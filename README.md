@@ -47,17 +47,20 @@ Supported output formats include:
 * `docx` (default)
 * `csv`
 * `sqlite`
+* `vtt`
 
 ```python
 import tscribe
 tscribe.write("output.json", format="docx")
 tscribe.write("output.json", format="csv")
 tscribe.write("output.json", format="sqlite")
+tscribe.write("output.json", format="vtt")
 ```
 ```
 output.docx written in x seconds.
 output.csv written in x seconds.
 output.db written in x seconds.
+output.vtt written in x seconds.
 ```
 
 ## Target directory or filename 

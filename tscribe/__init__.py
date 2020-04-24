@@ -10,6 +10,7 @@ from pathlib import Path
 from time import perf_counter
 import pandas
 import sqlite3
+import webvtt
 
 
 def convert_time_stamp(n):
@@ -237,8 +238,8 @@ def decode_transcript(data):
     # Neither speaker nor channel identification
     else:
 
-        decoded_data["start_time"].append("")
-        decoded_data["end_time"].append("")
+        decoded_data["start_time"] = convert_time_stamp(list(filter(lambda x: x["type"] == "pronunciation", data["results"]["items"]))[0]["start_time"])
+        decoded_data["end_time"] = convert_time_stamp(list(filter(lambda x: x["type"] == "pronunciation", data["results"]["items"]))[-1]["end_time"])
         decoded_data["speaker"].append("")
         decoded_data["comment"].append("")
 
@@ -533,6 +534,25 @@ def write_docx(data, filename, **kwargs):
     document.save(filename)
 
 
+def write_vtt(df, filename):
+    """Output to VTT format"""
+
+    vtt = webvtt.WebVTT()
+
+    for index, row in df.iterrows():
+        caption = webvtt.Caption(
+            start=row["start_time"] + ".000",
+            end=row["end_time"] + ".000",
+            text=row["comment"],
+        )
+        if row["speaker"]:
+            caption.identifier = row["speaker"]
+
+        vtt.captions.append(caption)
+
+    vtt.save(filename)
+
+
 def write(file, **kwargs):
     """Main function, write transcript file from json"""
 
@@ -572,6 +592,11 @@ def write(file, **kwargs):
         conn = sqlite3.connect(str(filename))
         df.to_sql("transcript", conn)
         conn.close()
+
+    # Output to VTT
+    elif output_format == "vtt":
+        filename = kwargs.get("save_as", f"{data['jobName']}.db")
+        write_vtt(df, filename)
 
     else:
         raise Exception("Output format should be 'docx', 'csv' or 'sqlite'")
