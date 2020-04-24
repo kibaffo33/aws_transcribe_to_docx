@@ -16,7 +16,9 @@ def convert_time_stamp(n):
     """ Function to help convert timestamps from s to H:M:S """
     ts = datetime.timedelta(seconds=float(n))
     ts = ts - datetime.timedelta(microseconds=ts.microseconds)
-    return str(ts)
+    to_dt = datetime.datetime.strptime(str(ts), "%H:%M:%S")
+    from_dt = to_dt.strftime("%H:%M:%S")
+    return from_dt
 
 
 def load_json(file):
