@@ -238,8 +238,16 @@ def decode_transcript(data):
     # Neither speaker nor channel identification
     else:
 
-        decoded_data["start_time"] = convert_time_stamp(list(filter(lambda x: x["type"] == "pronunciation", data["results"]["items"]))[0]["start_time"])
-        decoded_data["end_time"] = convert_time_stamp(list(filter(lambda x: x["type"] == "pronunciation", data["results"]["items"]))[-1]["end_time"])
+        decoded_data["start_time"] = convert_time_stamp(
+            list(
+                filter(lambda x: x["type"] == "pronunciation", data["results"]["items"])
+            )[0]["start_time"]
+        )
+        decoded_data["end_time"] = convert_time_stamp(
+            list(
+                filter(lambda x: x["type"] == "pronunciation", data["results"]["items"])
+            )[-1]["end_time"]
+        )
         decoded_data["speaker"].append("")
         decoded_data["comment"].append("")
 
@@ -537,14 +545,37 @@ def write_docx(data, filename, **kwargs):
 def write_vtt(df, filename):
     """Output to VTT format"""
 
+    # Initialize vtt
     vtt = webvtt.WebVTT()
 
+    # Iterate through df
     for index, row in df.iterrows():
-        caption = webvtt.Caption(
-            start=row["start_time"] + ".000",
-            end=row["end_time"] + ".000",
-            text=row["comment"],
-        )
+
+        # If the segment has 80 or less characters
+        if len(row["comment"]) <= 80:
+
+            caption = webvtt.Caption(
+                start=row["start_time"] + ".000",
+                end=row["end_time"] + ".000",
+                text=row["comment"],
+            )
+
+        # If the segment has more than 80 characters, use lines
+        else:
+
+            lines = []
+            text = row["comment"]
+
+            while len(text) > 80:
+                text = text.lstrip()
+                last_space = text[:80].rindex(" ")
+                lines.append(text[:last_space])
+                text = text[last_space:]
+
+            caption = webvtt.Caption(
+                row["start_time"] + ".000", row["end_time"] + ".000", lines
+            )
+
         if row["speaker"]:
             caption.identifier = row["speaker"]
 
@@ -595,7 +626,7 @@ def write(file, **kwargs):
 
     # Output to VTT
     elif output_format == "vtt":
-        filename = kwargs.get("save_as", f"{data['jobName']}.db")
+        filename = kwargs.get("save_as", f"{data['jobName']}.vtt")
         write_vtt(df, filename)
 
     else:

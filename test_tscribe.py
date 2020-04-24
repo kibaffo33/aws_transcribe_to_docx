@@ -308,6 +308,7 @@ def test_write_to_vtt(input_file):
         assert hasattr(caption, "start"), "each caption should have a start_time"
         assert hasattr(caption, "end"), "each caption should have a end_time"
         assert hasattr(caption, "text"), "each caption should have text"
+        assert len(caption.lines) >= len(caption.text) / 80, "text should be split into max 80 long lines"
         if input_file != "sample_single.json":
             assert hasattr(
                 caption, "identifier"
