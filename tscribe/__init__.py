@@ -630,7 +630,7 @@ def write(file, **kwargs):
         write_vtt(df, filename)
 
     else:
-        raise Exception("Output format should be 'docx', 'csv' or 'sqlite'")
+        raise Exception("Output format should be 'docx', 'csv', 'sqlite' or 'vtt'")
 
     # Performance timer finish
     finish = perf_counter()
