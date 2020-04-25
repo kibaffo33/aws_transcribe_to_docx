@@ -1,7 +1,7 @@
 tscribe
 =======
 
-Produce Word Document, CSV SQLite and VTT transcriptions using the automatic speech recognition from AWS Transcribe.
+Produce Word Document, CSV, SQLite and VTT transcriptions using the automatic speech recognition from AWS Transcribe.
 
 [![Build Status](https://travis-ci.com/kibaffo33/aws_transcribe_to_docx.svg?branch=master)](https://travis-ci.com/kibaffo33/aws_transcribe_to_docx)
 [![Coverage Status](https://coveralls.io/repos/github/kibaffo33/aws_transcribe_to_docx/badge.svg?branch=master)](https://coveralls.io/github/kibaffo33/aws_transcribe_to_docx?branch=master)
