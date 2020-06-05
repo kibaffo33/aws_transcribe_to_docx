@@ -609,24 +609,24 @@ def write(file, **kwargs):
 
     # Output to docx (default behaviour)
     if output_format == "docx":
-        filename = kwargs.get("save_as", f"{data['jobName']}.docx")
+        filename = kwargs.get("save_as", Path(file).with_suffix(".docx"))
         write_docx(data, filename)
 
     # Output to CSV
     elif output_format == "csv":
-        filename = kwargs.get("save_as", f"{data['jobName']}.csv")
+        filename = kwargs.get("save_as", Path(file).with_suffix(".csv"))
         df.to_csv(filename)
 
     # Output to sqlite
     elif output_format == "sqlite":
-        filename = kwargs.get("save_as", f"{data['jobName']}.db")
+        filename = kwargs.get("save_as", Path(file).with_suffix(".db"))
         conn = sqlite3.connect(str(filename))
         df.to_sql("transcript", conn)
         conn.close()
 
     # Output to VTT
     elif output_format == "vtt":
-        filename = kwargs.get("save_as", f"{data['jobName']}.vtt")
+        filename = kwargs.get("save_as", Path(file).with_suffix(".vtt"))
         write_vtt(df, filename)
 
     else:
