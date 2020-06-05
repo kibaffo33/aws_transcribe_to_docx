@@ -365,9 +365,7 @@ def test_save_as(input_file, output_format, location):
         os.mkdir("output")
 
     # GIVEN locations of current or specific folder
-    output_filename = Path(location) / Path(
-        input_file.replace(".json", f".{output_format}")
-    )
+    output_filename = Path(location) / Path(Path(input_file).parts[-1]).with_suffix(f".{output_format}")
 
     # WHEN writing transcript in any supported format
     tscribe.write(input_file, format=output_format, save_as=output_filename)
