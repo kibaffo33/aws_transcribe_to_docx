@@ -7,9 +7,17 @@ from pathlib import Path
 import sqlite3
 from docx import Document
 import webvtt
+import glob
 
 
-sample_files = ["sample_single.json", "sample_multiple.json", "sample_channels.json"]
+sample_files = sorted(glob.glob("sample_material/*.json"))
+
+
+def test_sample_files():
+    """Confirm test files present and accessible"""
+    assert len(sample_files) == 20
+    for sample in sample_files:
+        assert Path(sample).is_file(), "Sample file should exist"
 
 
 @pytest.mark.parametrize(
