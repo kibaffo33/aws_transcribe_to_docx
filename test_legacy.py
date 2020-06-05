@@ -16,8 +16,8 @@ def test_multiple_speakers():
     """
 
     # Setup
-    input_file = "sample_multiple.json"
-    output_file = "sample_multiple.docx"
+    input_file = "sample_material/03-speaker-identification.json"
+    output_file = "sample_material/03-speaker-identification.docx"
     assert os.access(input_file, os.F_OK), "Input file not found"
 
     # Function
@@ -26,7 +26,7 @@ def test_multiple_speakers():
 
     # Teardown
     os.remove(output_file)
-    os.remove("chart.png")
+    os.remove("sample_material/chart.png")
 
 
 def test_multiple_speakers_with_save_as():
@@ -40,8 +40,8 @@ def test_multiple_speakers_with_save_as():
     """
 
     # Setup
-    input_file = "sample_multiple.json"
-    output_file = "test_sample.docx"
+    input_file = "sample_material/03-speaker-identification.json"
+    output_file = "sample_material/test_sample.docx"
     assert os.access(input_file, os.F_OK), "Input file not found"
 
     # Function
@@ -50,7 +50,7 @@ def test_multiple_speakers_with_save_as():
 
     # Teardown
     os.remove(output_file)
-    os.remove("chart.png")
+    os.remove("sample_material/chart.png")
 
 
 # SKIPPED - chart now writes to same directory as output through use of the Path parent
@@ -95,8 +95,8 @@ def test_single_speaker():
     """
 
     # Setup
-    input_file = "sample_single.json"
-    output_file = "sample_single.docx"
+    input_file = "sample_material/01-plain.json"
+    output_file = "sample_material/01-plain.docx"
     assert os.access(input_file, os.F_OK), "Input file not found"
 
     # Function
@@ -105,7 +105,7 @@ def test_single_speaker():
 
     # Teardown
     os.remove(output_file)
-    os.remove("chart.png")
+    os.remove("sample_material/chart.png")
 
 
 def test_single_speaker_with_save_as():
@@ -119,8 +119,8 @@ def test_single_speaker_with_save_as():
     """
 
     # Setup
-    input_file = "sample_single.json"
-    output_file = "test_sample.docx"
+    input_file = "sample_material/01-plain.json"
+    output_file = "sample_material/test_sample.docx"
     assert os.access(input_file, os.F_OK), "Input file not found"
 
     # Function
@@ -129,7 +129,7 @@ def test_single_speaker_with_save_as():
 
     # Teardown
     os.remove(output_file)
-    os.remove("chart.png")
+    os.remove("sample_material/chart.png")
 
 
 # SKIPPED - chart now writes to same directory as output through use of the Path parent
