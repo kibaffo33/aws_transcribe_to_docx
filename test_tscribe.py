@@ -13,11 +13,13 @@ import glob
 sample_files = sorted(glob.glob("sample_material/*.json"))
 
 
-def test_sample_files():
-    """Confirm test files present and accessible"""
-    assert len(sample_files) == 20
-    for sample in sample_files:
-        assert Path(sample).is_file(), "Sample file should exist"
+@pytest.mark.parametrize("sample", sample_files)
+def test_sample_files(sample):
+    """Confirm test files accessible and safe"""
+    assert Path(sample).is_file(), "Sample file should exist"
+    assert Path(sample).suffix == ".json", "Sample files should be json files"
+    data = tscribe.load_json(sample)
+    assert data["accountId"] == "XXXXXXXXXXXX"
 
 
 @pytest.mark.parametrize(
