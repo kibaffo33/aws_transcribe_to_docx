@@ -376,3 +376,21 @@ def test_save_as(input_file, output_format, location):
     assert output_filename.is_file()
 
     os.remove(output_filename)
+
+
+@pytest.mark.parametrize("input_file", sample_files)
+@pytest.mark.xfail
+def test_depricated_tmp_dir(input_file):
+    """
+    Test that using tmp_dir fails
+
+    GIVEN an input file
+    WHEN calling tscribe with tmp_dir
+    THEN receive warning and fail
+    """
+    
+    # GIVEN an input file
+    # WHEN calling tscribe with tmp_dir
+    # THEN receive warning and fail
+    tscribe.write(input_file, tmp_dir=".")
+
