@@ -11,6 +11,7 @@ from time import perf_counter
 import pandas
 import sqlite3
 import webvtt
+import logging
 
 
 def convert_time_stamp(n):
@@ -24,6 +25,7 @@ def convert_time_stamp(n):
 
 def load_json(file):
     """Load in JSON file and return as dict"""
+    logging.info("Loading json")
 
     json_filepath = Path(file)
     assert json_filepath.is_file(), "JSON file does not exist"
@@ -35,11 +37,13 @@ def load_json(file):
 
     assert data["status"] == "COMPLETED", "JSON file not shown as completed."
 
+    logging.debug("json checks psased")
     return data
 
 
 def confidence_stats(data):
     """Confidence Statistics"""
+    logging.info("Gathering confidence statistics")
 
     # Assign data to variable
     data = data
@@ -97,6 +101,7 @@ def confidence_stats(data):
 
 def make_graph(stats, dir):
     """Make scatter graph from confidence statistics"""
+    logging.info("Making graph")
 
     # Confidence of each word as scatter graph
     plt.scatter(stats["timestamps"], stats["accuracy"])
@@ -117,8 +122,8 @@ def make_graph(stats, dir):
 
     # Target filename, including dir for explicit path
     filename = Path(dir + "/chart.png")
-
     plt.savefig(filename)
+    logging.info(f"Graph saved to {filename}")
     plt.clf()
 
     return str(filename)
@@ -126,6 +131,7 @@ def make_graph(stats, dir):
 
 def decode_transcript(data):
     """Decode the transcript into a pandas dataframe"""
+    logging.info("Decoding transcript")
 
     # Assign data to variable
     data = data
@@ -134,6 +140,7 @@ def decode_transcript(data):
 
     # If speaker identification
     if "speaker_labels" in data["results"].keys():
+        logging.debug("Transcipt has speaker_labels")
 
         # A segment is a blob of pronounciation and punctuation by an individual speaker
         for segment in data["results"]["speaker_labels"]["segments"]:
@@ -186,6 +193,7 @@ def decode_transcript(data):
 
     # If channel identification
     elif "channel_labels" in data["results"].keys():
+        logging.debug("Transcipt has channel_labels")
 
         # For each word in the results
         for word in data["results"]["items"]:
@@ -237,6 +245,7 @@ def decode_transcript(data):
 
     # Neither speaker nor channel identification
     else:
+        logging.debug("No speaker_labels or channel_labels")
 
         decoded_data["start_time"] = convert_time_stamp(
             list(
@@ -284,6 +293,7 @@ def decode_transcript(data):
 
 def write_docx(data, filename, **kwargs):
     """ Write a transcript from the .json transcription file. """
+    logging.info("Writing docx")
 
     output_filename = Path(filename)
 
@@ -389,6 +399,7 @@ def write_docx(data, filename, **kwargs):
 
     # If speaker identification
     if "speaker_labels" in data["results"].keys():
+        logging.debug("Transcript has speaker_labels")
 
         # A segment is a blob of pronounciation and punctuation by an individual speaker
         for segment in data["results"]["speaker_labels"]["segments"]:
@@ -443,6 +454,7 @@ def write_docx(data, filename, **kwargs):
 
     # If channel identification
     elif "channel_labels" in data["results"].keys():
+        logging.debug("Transcript has channel_labels")
 
         for word in data["results"]["items"]:
 
@@ -503,6 +515,7 @@ def write_docx(data, filename, **kwargs):
 
     # Else no speaker identification
     else:
+        logging.debug("No speaker_labels or channel_labels")
 
         # Start the first row
         row_cells = table.add_row().cells
@@ -540,10 +553,12 @@ def write_docx(data, filename, **kwargs):
 
     # Save
     document.save(filename)
+    logging.info(f"Docx saved to {filename}")
 
 
 def write_vtt(df, filename):
     """Output to VTT format"""
+    logging.info("Writing VTT")
 
     # Initialize vtt
     vtt = webvtt.WebVTT()
@@ -582,6 +597,7 @@ def write_vtt(df, filename):
         vtt.captions.append(caption)
 
     vtt.save(filename)
+    logging.info(f"VTT saved to {filename}")
 
 
 def write(file, **kwargs):
@@ -589,6 +605,10 @@ def write(file, **kwargs):
 
     # Performance timer start
     start = perf_counter()
+    logging.info("=" * 32)
+    logging.debug(f"Started at {start}")
+    logging.info(f"Source file: {file}")
+    logging.debug(f"kwargs = {kwargs}")
 
     # Load json file as dict
     data = load_json(file)
@@ -601,6 +621,7 @@ def write(file, **kwargs):
 
     # Deprecated tmp_dir by improving save_as
     if kwargs.get("tmp_dir"):
+        logging.warning("tmp_dir in kwargs")
         raise Exception("tmp_dir has been deprecated, use save_as instead")
 
     # Output to docx (default behaviour)
@@ -630,6 +651,9 @@ def write(file, **kwargs):
 
     # Performance timer finish
     finish = perf_counter()
+    logging.debug(f"Finished at {finish}")
     duration = round(finish - start, 2)
 
     print(f"{filename} written in {duration} seconds.")
+    logging.info(f"{filename} written in {duration} seconds.")
+

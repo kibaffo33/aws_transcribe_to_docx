@@ -8,14 +8,17 @@ import sqlite3
 from docx import Document
 import webvtt
 import glob
+import logging
 
 
+logging.basicConfig(filename="log.txt", level=logging.DEBUG, filemode="w")
 sample_files = sorted(glob.glob("sample_material/*.json"))
 
 
 @pytest.mark.parametrize("sample", sample_files)
 def test_sample_files(sample):
     """Confirm test files accessible and safe"""
+    logging.info("test_sample_files")
     assert Path(sample).is_file(), "Sample file should exist"
     assert Path(sample).suffix == ".json", "Sample files should be json files"
     data = tscribe.load_json(sample)
@@ -34,6 +37,8 @@ def test_convert_time_stamp(time_stamp, expected):
     WHEN calling convert_time_stamp(...)
     THEN convert the float of seconds to a H:MM:SS format
     """
+
+    logging.info("test_convert_time_stamp")
 
     # GIVEN a float of seconds as data type str
     time_stamp = time_stamp
@@ -64,6 +69,8 @@ def test_load_json(input_file):
     THEN return a dict
     """
 
+    logging.info("test_load_json")
+
     # GIVEN a sample json file
     # provided through parametrize
 
@@ -83,6 +90,8 @@ def test_confidence_stats(input_file):
     WHEN calling confidence_stats(...)
     THEN return the data model with the right components
     """
+
+    logging.info("test_confidence_stats")
 
     # GIVEN a data dict
     # input_file = "sample_multiple.json"
@@ -117,6 +126,7 @@ def test_make_graph(input_file):
     THEN produce chart.png
     """
 
+    logging.info("test_make_graph")
     filepath = Path("chart.png")
 
     # Ensure blank slate
@@ -145,6 +155,8 @@ def test_decode_transcript(input_file):
     WHEN calling decode_transcript(...)
     THEN 
     """
+
+    logging.info("test_decode_transcript")
 
     # GIVEN a data dict
     data = tscribe.load_json(input_file)
@@ -180,6 +192,8 @@ def test_write_to_docx(input_file):
     WHEN writing to docx
     THEN check output exists and contains content
     """
+
+    logging.info("test_write_to_docx")
 
     # GIVEN an input file
     # WHEN writing to docx
@@ -237,6 +251,8 @@ def test_write_to_csv(input_file):
     THEN check output exists and contains content
     """
 
+    logging.info("test_write_to_csv")
+
     # GIVEN an input file
     # WHEN writing to csv
     output_filename = Path(f"{uuid4().hex}.csv")
@@ -266,6 +282,8 @@ def test_write_to_sqlite(input_file):
     WHEN writing to sqlite
     THEN check output exists and contains content
     """
+
+    logging.info("test_write_to_sqlite")
 
     # GIVEN an input file
     # WHEN writing to sqlite
@@ -298,6 +316,8 @@ def test_write_to_vtt(input_file):
     WHEN writing to vtt
     THEN check output exists and contains content
     """
+
+    logging.info("test_write_to_vtt")
 
     # GIVEN an input file
     # WHEN writing to vtt
@@ -338,6 +358,8 @@ def test_write_to_default(input_file):
     THEN check output is the default format
     """
 
+    logging.info("test_write_to_default")
+
     # GIVEN an input file
     # WHEN not specifying output
     tscribe.write(input_file)
@@ -362,6 +384,8 @@ def test_save_as(input_file, output_format, location):
     WHEN writing transcript in any supported format
     THEN check output exists
     """
+
+    logging.info("test_save_as")
 
     if not Path("output").is_dir():
         os.mkdir("output")
@@ -388,6 +412,8 @@ def test_depricated_tmp_dir(input_file):
     WHEN calling tscribe with tmp_dir
     THEN receive warning and fail
     """
+
+    logging.info("test_deprecated_tmp_dir")
     
     # GIVEN an input file
     # WHEN calling tscribe with tmp_dir
