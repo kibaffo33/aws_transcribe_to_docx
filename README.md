@@ -9,6 +9,9 @@ Produce Word Document, CSV, SQLite and VTT transcriptions using the automatic sp
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/tscribe)
 [![PyPI version](https://badge.fury.io/py/tscribe.svg)](https://badge.fury.io/py/tscribe)
 
+[![Downloads](https://pepy.tech/badge/tscribe)](https://pepy.tech/project/tscribe)
+[![Downloads](https://pepy.tech/badge/tscribe/month)](https://pepy.tech/project/tscribe/month)
+
 
 # Installation
 
