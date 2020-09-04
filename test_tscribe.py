@@ -21,7 +21,7 @@ def test_sample_files(sample):
     logging.info("test_sample_files")
     assert Path(sample).is_file(), "Sample file should exist"
     assert Path(sample).suffix == ".json", "Sample files should be json files"
-    data = tscribe.load_json(sample)
+    data = tscribe.load_json_as_dict(sample)
     assert data["accountId"] == "XXXXXXXXXXXX"
 
 
@@ -60,45 +60,45 @@ def test_convert_time_stamp(time_stamp, expected):
 
 
 @pytest.mark.parametrize("input_file", sample_files)
-def test_load_json(input_file):
+def test_load_json_as_dict(input_file):
     """
     Test json to dict function
     
     GIVEN a sample json file
-    WHEN calling tscribe.load_json(...)
+    WHEN calling tscribe.load_json_as_dict(...)
     THEN return a dict
     """
 
-    logging.info("test_load_json")
+    logging.info("test_load_json_as_dict")
 
     # GIVEN a sample json file
     # provided through parametrize
 
-    # WHEN calling tscribe.load_json(...)
-    data = tscribe.load_json(input_file)
+    # WHEN calling tscribe.load_json_as_dict(...)
+    data = tscribe.load_json_as_dict(input_file)
 
     # THEN return a dict
     assert isinstance(data, dict), "Data should by of dict type"
 
 
 @pytest.mark.parametrize("input_file", sample_files)
-def test_confidence_stats(input_file):
+def test_calculate_confidence_statistics(input_file):
     """
     Test confidence stats data modeling
 
     GIVEN a data dict
-    WHEN calling confidence_stats(...)
+    WHEN calling calculate_confidence_statistics(...)
     THEN return the data model with the right components
     """
 
-    logging.info("test_confidence_stats")
+    logging.info("test_calculate_confidence_statistics")
 
     # GIVEN a data dict
     # input_file = "sample_multiple.json"
-    data = tscribe.load_json(input_file)
+    data = tscribe.load_json_as_dict(input_file)
 
-    # WHEN calling confidence_stats(...)
-    stats = tscribe.confidence_stats(data)
+    # WHEN calling calculate_confidence_statistics(...)
+    stats = tscribe.calculate_confidence_statistics(data)
 
     # THEN return the data model with the right components
     assert isinstance(stats, dict), "Stats should be of dict type"
@@ -117,16 +117,16 @@ def test_confidence_stats(input_file):
 
 
 @pytest.mark.parametrize("input_file", sample_files)
-def test_make_graph(input_file):
+def test_make_graph_png(input_file):
     """
     Test function for creating graphs from confidence stats
     
     GIVEN confidence stats from an input file
-    WHEN calling make_graph(...)
+    WHEN calling make_graph_png(...)
     THEN produce chart.png
     """
 
-    logging.info("test_make_graph")
+    logging.info("test_make_graph_png")
     filepath = Path("chart.png")
 
     # Ensure blank slate
@@ -134,11 +134,11 @@ def test_make_graph(input_file):
         os.remove(filepath)
 
     # GIVEN confidence stats from an input file
-    data = tscribe.load_json(input_file)
-    stats = tscribe.confidence_stats(data)
+    data = tscribe.load_json_as_dict(input_file)
+    stats = tscribe.calculate_confidence_statistics(data)
 
-    # WHEN calling make_graph(...)
-    tscribe.make_graph(stats, "./")
+    # WHEN calling make_graph_png(...)
+    tscribe.make_graph_png(stats, "./")
 
     # THEN produce chart.png
     assert filepath.is_file(), "chart.png should be created"
@@ -147,27 +147,27 @@ def test_make_graph(input_file):
 
 
 @pytest.mark.parametrize("input_file", sample_files)
-def test_decode_transcript(input_file):
+def test_decode_transcript_to_dataframe(input_file):
     """
     Test transcript decoding function
 
     GIVEN a data dict
-    WHEN calling decode_transcript(...)
+    WHEN calling decode_transcript_to_dataframe(...)
     THEN 
     """
 
-    logging.info("test_decode_transcript")
+    logging.info("test_decode_transcript_to_dataframe")
 
     # GIVEN a data dict
-    data = tscribe.load_json(input_file)
+    data = tscribe.load_json_as_dict(input_file)
 
-    # WHEN calling decode_transcript(...)
-    df = tscribe.decode_transcript(data)
+    # WHEN calling decode_transcript_to_dataframe(...)
+    df = tscribe.decode_transcript_to_dataframe(data)
 
     # THEN
     assert isinstance(
         df, pandas.DataFrame
-    ), "decode_transcript should return a Pandas Data Frame"
+    ), "decode_transcript_to_dataframe should return a Pandas Data Frame"
 
     rows, cols = df.shape
 
@@ -227,8 +227,8 @@ def test_write_to_docx(input_file):
         "Speaker",
         "Content",
     ), "Second table should be transcript headers"
-    data = tscribe.load_json(input_file)
-    df = tscribe.decode_transcript(data)
+    data = tscribe.load_json_as_dict(input_file)
+    df = tscribe.decode_transcript_to_dataframe(data)
     assert (
         len(document.tables[1].rows) == len(df) + 1
     ), "Second table should be length of dataframe + headers"
@@ -264,8 +264,8 @@ def test_write_to_csv(input_file):
     with open(output_filename, "r") as file:
         lines = file.readlines()
 
-    data = tscribe.load_json(input_file)
-    df = tscribe.decode_transcript(data)
+    data = tscribe.load_json_as_dict(input_file)
+    df = tscribe.decode_transcript_to_dataframe(data)
 
     assert len(lines) == len(df) + 1, "CSV should be length of dataframe + headers"
 
@@ -298,8 +298,8 @@ def test_write_to_sqlite(input_file):
     c.execute("SELECT * FROM transcript")
     query = c.fetchall()
 
-    data = tscribe.load_json(input_file)
-    df = tscribe.decode_transcript(data)
+    data = tscribe.load_json_as_dict(input_file)
+    df = tscribe.decode_transcript_to_dataframe(data)
 
     assert len(query) == len(df), "Database table should be length of dataframe"
 
@@ -327,8 +327,8 @@ def test_write_to_vtt(input_file):
     # THEN check output exists and contains content
     vtt = webvtt.read(output_filename)
 
-    data = tscribe.load_json(input_file)
-    df = tscribe.decode_transcript(data)
+    data = tscribe.load_json_as_dict(input_file)
+    df = tscribe.decode_transcript_to_dataframe(data)
     assert len(vtt.captions) == len(
         df
     ), "vtt file should have equal captions to df rows"

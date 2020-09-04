@@ -14,7 +14,7 @@ import webvtt
 import logging
 
 
-def convert_time_stamp(n):
+def convert_time_stamp(n :str) -> str:
     """ Function to help convert timestamps from s to H:M:S """
     ts = datetime.timedelta(seconds=float(n))
     ts = ts - datetime.timedelta(microseconds=ts.microseconds)
@@ -23,11 +23,11 @@ def convert_time_stamp(n):
     return from_dt
 
 
-def load_json(file):
+def load_json_as_dict(filepath :str) -> dict:
     """Load in JSON file and return as dict"""
     logging.info("Loading json")
 
-    json_filepath = Path(file)
+    json_filepath = Path(filepath)
     assert json_filepath.is_file(), "JSON file does not exist"
 
     data = json.load(open(json_filepath.absolute(), "r", encoding="utf-8"))
@@ -41,7 +41,7 @@ def load_json(file):
     return data
 
 
-def confidence_stats(data):
+def calculate_confidence_statistics(data :dict) -> dict:
     """Confidence Statistics"""
     logging.info("Gathering confidence statistics")
 
@@ -99,7 +99,7 @@ def confidence_stats(data):
     return stats
 
 
-def make_graph(stats, dir):
+def make_graph_png(stats :dict, directory :str) -> str:
     """Make scatter graph from confidence statistics"""
     logging.info("Making graph")
 
@@ -120,16 +120,16 @@ def make_graph(stats, dir):
     plt.title("Accuracy during transcript")
     plt.legend(["Accuracy average (mean)", "Individual words"], loc="lower center")
 
-    # Target filename, including dir for explicit path
-    filename = Path(dir + "/chart.png")
-    plt.savefig(filename)
+    # Target filename, including directory for explicit path
+    filename = Path(directory) / Path("chart.png")
+    plt.savefig(str(filename))
     logging.info(f"Graph saved to {filename}")
     plt.clf()
 
     return str(filename)
 
 
-def decode_transcript(data):
+def decode_transcript_to_dataframe(data :str):
     """Decode the transcript into a pandas dataframe"""
     logging.info("Decoding transcript")
 
@@ -327,7 +327,7 @@ def write_docx(data, filename, **kwargs):
     )
 
     # Get stats
-    stats = confidence_stats(data)
+    stats = calculate_confidence_statistics(data)
 
     # Display confidence count table
     table = document.add_table(rows=1, cols=3)
@@ -384,7 +384,7 @@ def write_docx(data, filename, **kwargs):
     # Add paragraph for spacing
     document.add_paragraph()
 
-    graph = make_graph(stats, str(output_filename.parent))
+    graph = make_graph_png(stats, str(output_filename.parent))
     document.add_picture(graph, width=Cm(14.64))
     document.paragraphs[-1].alignment = WD_ALIGN_PARAGRAPH.CENTER
     document.add_page_break()
@@ -600,21 +600,21 @@ def write_vtt(df, filename):
     logging.info(f"VTT saved to {filename}")
 
 
-def write(file, **kwargs):
+def write(transcript_filepath, **kwargs):
     """Main function, write transcript file from json"""
 
     # Performance timer start
     start = perf_counter()
     logging.info("=" * 32)
     logging.debug(f"Started at {start}")
-    logging.info(f"Source file: {file}")
+    logging.info(f"Source file: {transcript_filepath}")
     logging.debug(f"kwargs = {kwargs}")
 
     # Load json file as dict
-    data = load_json(file)
+    data = load_json_as_dict(transcript_filepath)
 
     # Decode transcript
-    df = decode_transcript(data)
+    df = decode_transcript_to_dataframe(data)
 
     # Output
     output_format = kwargs.get("format", "docx")
@@ -626,25 +626,25 @@ def write(file, **kwargs):
 
     # Output to docx (default behaviour)
     if output_format == "docx":
-        filename = kwargs.get("save_as", Path(file).with_suffix(".docx"))
-        write_docx(data, filename)
+        output_filepath = kwargs.get("save_as", Path(transcript_filepath).with_suffix(".docx"))
+        write_docx(data, output_filepath)
 
     # Output to CSV
     elif output_format == "csv":
-        filename = kwargs.get("save_as", Path(file).with_suffix(".csv"))
-        df.to_csv(filename)
+        output_filepath = kwargs.get("save_as", Path(transcript_filepath).with_suffix(".csv"))
+        df.to_csv(output_filepath)
 
     # Output to sqlite
     elif output_format == "sqlite":
-        filename = kwargs.get("save_as", Path(file).with_suffix(".db"))
-        conn = sqlite3.connect(str(filename))
+        output_filepath = kwargs.get("save_as", Path(transcript_filepath).with_suffix(".db"))
+        conn = sqlite3.connect(str(output_filepath))
         df.to_sql("transcript", conn)
         conn.close()
 
     # Output to VTT
     elif output_format == "vtt":
-        filename = kwargs.get("save_as", Path(file).with_suffix(".vtt"))
-        write_vtt(df, filename)
+        output_filepath = kwargs.get("save_as", Path(transcript_filepath).with_suffix(".vtt"))
+        write_vtt(df, output_filepath)
 
     else:
         raise Exception("Output format should be 'docx', 'csv', 'sqlite' or 'vtt'")
@@ -654,6 +654,6 @@ def write(file, **kwargs):
     logging.debug(f"Finished at {finish}")
     duration = round(finish - start, 2)
 
-    print(f"{filename} written in {duration} seconds.")
-    logging.info(f"{filename} written in {duration} seconds.")
+    print(f"{output_filepath} written in {duration} seconds.")
+    logging.info(f"{output_filepath} written in {duration} seconds.")
 
