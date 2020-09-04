@@ -420,3 +420,22 @@ def test_depricated_tmp_dir(input_file):
     # THEN receive warning and fail
     tscribe.write(input_file, tmp_dir=".")
 
+
+@pytest.mark.parametrize("input_file", sample_files)
+@pytest.mark.xfail
+def test_unrecognised_output_format(input_file):
+    """
+    Test for exception when given unrecognised output format
+
+    GIVEN an input file and an unrecognised output format
+    WHEN calling tscribe.write(...)
+    THEN xfail
+    """
+
+    # GIVEN an input file and an unrecognised output format
+    unrecognised_format = "unrecognised"
+
+    # WHEN calling tscribe.write(...)
+    # THEN xfail
+    tscribe.write(input_file, format=unrecognised_format)
+
