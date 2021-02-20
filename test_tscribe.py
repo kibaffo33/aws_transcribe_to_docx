@@ -27,12 +27,17 @@ def test_sample_files(sample):
 
 @pytest.mark.parametrize(
     "time_stamp,expected",
-    [("1.0", "00:00:01"), ("2.5", "00:00:02"), ("60.0", "00:01:00"), ("3600", "01:00:00")],
+    [
+        ("1.0", "00:00:01"),
+        ("2.5", "00:00:02"),
+        ("60.0", "00:01:00"),
+        ("3600", "01:00:00"),
+    ],
 )
 def test_convert_time_stamp(time_stamp, expected):
     """
     Test timetsamp conversion utility function
-    
+
     GIVEN a float of seconds as data type str
     WHEN calling convert_time_stamp(...)
     THEN convert the float of seconds to a H:MM:SS format
@@ -63,7 +68,7 @@ def test_convert_time_stamp(time_stamp, expected):
 def test_load_json_as_dict(input_file):
     """
     Test json to dict function
-    
+
     GIVEN a sample json file
     WHEN calling tscribe.load_json_as_dict(...)
     THEN return a dict
@@ -120,7 +125,7 @@ def test_calculate_confidence_statistics(input_file):
 def test_make_graph_png(input_file):
     """
     Test function for creating graphs from confidence stats
-    
+
     GIVEN confidence stats from an input file
     WHEN calling make_graph_png(...)
     THEN produce chart.png
@@ -153,7 +158,7 @@ def test_decode_transcript_to_dataframe(input_file):
 
     GIVEN a data dict
     WHEN calling decode_transcript_to_dataframe(...)
-    THEN 
+    THEN
     """
 
     logging.info("test_decode_transcript_to_dataframe")
@@ -187,7 +192,7 @@ def test_decode_transcript_to_dataframe(input_file):
 def test_write_to_docx(input_file):
     """
     Test production of docx output
-    
+
     GIVEN an input file
     WHEN writing to docx
     THEN check output exists and contains content
@@ -245,7 +250,7 @@ def test_write_to_docx(input_file):
 def test_write_to_csv(input_file):
     """
     Test production of csv output
-    
+
     GIVEN an input file
     WHEN writing to csv
     THEN check output exists and contains content
@@ -277,7 +282,7 @@ def test_write_to_csv(input_file):
 def test_write_to_sqlite(input_file):
     """
     Test production of sqlite output
-    
+
     GIVEN an input file
     WHEN writing to sqlite
     THEN check output exists and contains content
@@ -338,7 +343,9 @@ def test_write_to_vtt(input_file):
         assert hasattr(caption, "start"), "each caption should have a start_time"
         assert hasattr(caption, "end"), "each caption should have a end_time"
         assert hasattr(caption, "text"), "each caption should have text"
-        assert len(caption.lines) >= len(caption.text) / 80, "text should be split into max 80 long lines"
+        assert (
+            len(caption.lines) >= len(caption.text) / 80
+        ), "text should be split into max 80 long lines"
         if input_file != "sample_single.json":
             assert hasattr(
                 caption, "identifier"
@@ -352,7 +359,7 @@ def test_write_to_vtt(input_file):
 def test_write_to_default(input_file):
     """
     Test production of default output
-    
+
     GIVEN an input file
     WHEN not specifying output
     THEN check output is the default format
@@ -379,7 +386,7 @@ def test_write_to_default(input_file):
 def test_save_as(input_file, output_format, location):
     """
     Test saving of supported formats to locations
-    
+
     GIVEN locations of current or specific folder
     WHEN writing transcript in any supported format
     THEN check output exists
@@ -391,7 +398,9 @@ def test_save_as(input_file, output_format, location):
         os.mkdir("output")
 
     # GIVEN locations of current or specific folder
-    output_filename = Path(location) / Path(Path(input_file).parts[-1]).with_suffix(f".{output_format}")
+    output_filename = Path(location) / Path(Path(input_file).parts[-1]).with_suffix(
+        f".{output_format}"
+    )
 
     # WHEN writing transcript in any supported format
     tscribe.write(input_file, format=output_format, save_as=output_filename)
@@ -414,7 +423,7 @@ def test_depricated_tmp_dir(input_file):
     """
 
     logging.info("test_deprecated_tmp_dir")
-    
+
     # GIVEN an input file
     # WHEN calling tscribe with tmp_dir
     # THEN receive warning and fail
@@ -438,4 +447,3 @@ def test_unrecognised_output_format(input_file):
     # WHEN calling tscribe.write(...)
     # THEN xfail
     tscribe.write(input_file, format=unrecognised_format)
-

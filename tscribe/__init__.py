@@ -14,7 +14,7 @@ import webvtt
 import logging
 
 
-def convert_time_stamp(n :str) -> str:
+def convert_time_stamp(n: str) -> str:
     """ Function to help convert timestamps from s to H:M:S """
     ts = datetime.timedelta(seconds=float(n))
     ts = ts - datetime.timedelta(microseconds=ts.microseconds)
@@ -23,7 +23,7 @@ def convert_time_stamp(n :str) -> str:
     return from_dt
 
 
-def load_json_as_dict(filepath :str) -> dict:
+def load_json_as_dict(filepath: str) -> dict:
     """Load in JSON file and return as dict"""
     logging.info("Loading json")
 
@@ -41,7 +41,7 @@ def load_json_as_dict(filepath :str) -> dict:
     return data
 
 
-def calculate_confidence_statistics(data :dict) -> dict:
+def calculate_confidence_statistics(data: dict) -> dict:
     """Confidence Statistics"""
     logging.info("Gathering confidence statistics")
 
@@ -99,7 +99,7 @@ def calculate_confidence_statistics(data :dict) -> dict:
     return stats
 
 
-def make_graph_png(stats :dict, directory :str) -> str:
+def make_graph_png(stats: dict, directory: str) -> str:
     """Make scatter graph from confidence statistics"""
     logging.info("Making graph")
 
@@ -129,7 +129,7 @@ def make_graph_png(stats :dict, directory :str) -> str:
     return str(filename)
 
 
-def decode_transcript_to_dataframe(data :str):
+def decode_transcript_to_dataframe(data: str):
     """Decode the transcript into a pandas dataframe"""
     logging.info("Decoding transcript")
 
@@ -626,24 +626,32 @@ def write(transcript_filepath, **kwargs):
 
     # Output to docx (default behaviour)
     if output_format == "docx":
-        output_filepath = kwargs.get("save_as", Path(transcript_filepath).with_suffix(".docx"))
+        output_filepath = kwargs.get(
+            "save_as", Path(transcript_filepath).with_suffix(".docx")
+        )
         write_docx(data, output_filepath)
 
     # Output to CSV
     elif output_format == "csv":
-        output_filepath = kwargs.get("save_as", Path(transcript_filepath).with_suffix(".csv"))
+        output_filepath = kwargs.get(
+            "save_as", Path(transcript_filepath).with_suffix(".csv")
+        )
         df.to_csv(output_filepath)
 
     # Output to sqlite
     elif output_format == "sqlite":
-        output_filepath = kwargs.get("save_as", Path(transcript_filepath).with_suffix(".db"))
+        output_filepath = kwargs.get(
+            "save_as", Path(transcript_filepath).with_suffix(".db")
+        )
         conn = sqlite3.connect(str(output_filepath))
         df.to_sql("transcript", conn)
         conn.close()
 
     # Output to VTT
     elif output_format == "vtt":
-        output_filepath = kwargs.get("save_as", Path(transcript_filepath).with_suffix(".vtt"))
+        output_filepath = kwargs.get(
+            "save_as", Path(transcript_filepath).with_suffix(".vtt")
+        )
         write_vtt(df, output_filepath)
 
     else:
@@ -656,4 +664,3 @@ def write(transcript_filepath, **kwargs):
 
     print(f"{output_filepath} written in {duration} seconds.")
     logging.info(f"{output_filepath} written in {duration} seconds.")
-
