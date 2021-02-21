@@ -16,7 +16,7 @@ import logging
 
 def convert_time_stamp(timestamp: str) -> str:
     """ Function to help convert timestamps from s to H:M:S """
-    delta = datetime.timedelta(seconds=float(n))
+    delta = datetime.timedelta(seconds=float(timestamp))
     seconds = delta - datetime.timedelta(microseconds=delta.microseconds)
     return str(seconds)
 
