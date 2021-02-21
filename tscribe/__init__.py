@@ -43,9 +43,6 @@ def calculate_confidence_statistics(data: dict) -> dict:
     """Confidence Statistics"""
     logging.info("Gathering confidence statistics")
 
-    # Assign data to variable
-    data = data
-
     # Stats dictionary
     stats = {
         "timestamps": [],
