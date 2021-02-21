@@ -273,14 +273,14 @@ def decode_transcript_to_dataframe(data: str):
                 pass
 
     # Produce pandas dataframe
-    df = pandas.DataFrame(
+    dataframe = pandas.DataFrame(
         decoded_data, columns=["start_time", "end_time", "speaker", "comment"]
     )
 
     # Clean leading whitespace
-    df["comment"] = df["comment"].str.lstrip()
+    dataframe["comment"] = dataframe["comment"].str.lstrip()
 
-    return df
+    return dataframe
 
 
 def write_docx(data, filename, **kwargs):
@@ -546,15 +546,15 @@ def write_docx(data, filename, **kwargs):
     logging.info("Docx saved to %s", filename)
 
 
-def write_vtt(df, filename):
+def write_vtt(dataframe, filename):
     """Output to VTT format"""
     logging.info("Writing VTT")
 
     # Initialize vtt
     vtt = webvtt.WebVTT()
 
-    # Iterate through df
-    for index, row in df.iterrows():
+    # Iterate through dataframe
+    for index, row in dataframe.iterrows():
 
         # If the segment has 80 or less characters
         if len(row["comment"]) <= 80:
@@ -604,7 +604,7 @@ def write(transcript_filepath, **kwargs):
     data = load_json_as_dict(transcript_filepath)
 
     # Decode transcript
-    df = decode_transcript_to_dataframe(data)
+    dataframe = decode_transcript_to_dataframe(data)
 
     # Output
     output_format = kwargs.get("format", "docx")
@@ -626,7 +626,7 @@ def write(transcript_filepath, **kwargs):
         output_filepath = kwargs.get(
             "save_as", Path(transcript_filepath).with_suffix(".csv")
         )
-        df.to_csv(output_filepath)
+        dataframe.to_csv(output_filepath)
 
     # Output to sqlite
     elif output_format == "sqlite":
@@ -634,7 +634,7 @@ def write(transcript_filepath, **kwargs):
             "save_as", Path(transcript_filepath).with_suffix(".db")
         )
         conn = sqlite3.connect(str(output_filepath))
-        df.to_sql("transcript", conn)
+        dataframe.to_sql("transcript", conn)
         conn.close()
 
     # Output to VTT
@@ -642,7 +642,7 @@ def write(transcript_filepath, **kwargs):
         output_filepath = kwargs.get(
             "save_as", Path(transcript_filepath).with_suffix(".vtt")
         )
-        write_vtt(df, output_filepath)
+        write_vtt(dataframe, output_filepath)
 
     else:
         raise Exception("Output format should be 'docx', 'csv', 'sqlite' or 'vtt'")
