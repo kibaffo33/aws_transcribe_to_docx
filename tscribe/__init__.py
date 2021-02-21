@@ -64,32 +64,19 @@ def calculate_confidence_statistics(data: dict) -> dict:
     # Confidence count
     for item in data["results"]["items"]:
         if item["type"] == "pronunciation":
+
             stats["timestamps"].append(float(item["start_time"]))
-            stats["accuracy"].append(
-                int(float(item["alternatives"][0]["confidence"]) * 100)
-            )
-            if float(item["alternatives"][0]["confidence"]) >= 0.98:
+
+            confidence_decimal = float(item["alternatives"][0]["confidence"])
+            confidence_integer = int(confidence_decimal * 100)
+
+            stats["accuracy"].append(confidence_integer)
+
+            if confidence_decimal >= 0.98:
                 stats["9.8"] += 1
-            elif float(item["alternatives"][0]["confidence"]) >= 0.9:
-                stats["9"] += 1
-            elif float(item["alternatives"][0]["confidence"]) >= 0.8:
-                stats["8"] += 1
-            elif float(item["alternatives"][0]["confidence"]) >= 0.7:
-                stats["7"] += 1
-            elif float(item["alternatives"][0]["confidence"]) >= 0.6:
-                stats["6"] += 1
-            elif float(item["alternatives"][0]["confidence"]) >= 0.5:
-                stats["5"] += 1
-            elif float(item["alternatives"][0]["confidence"]) >= 0.4:
-                stats["4"] += 1
-            elif float(item["alternatives"][0]["confidence"]) >= 0.3:
-                stats["3"] += 1
-            elif float(item["alternatives"][0]["confidence"]) >= 0.2:
-                stats["2"] += 1
-            elif float(item["alternatives"][0]["confidence"]) >= 0.1:
-                stats["1"] += 1
             else:
-                stats["0"] += 1
+                rough_confidence = str(int(confidence_decimal * 10))
+                stats[rough_confidence] += 1
 
     return stats
 
