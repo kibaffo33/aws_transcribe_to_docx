@@ -554,7 +554,7 @@ def write_vtt(dataframe, filename):
     vtt = webvtt.WebVTT()
 
     # Iterate through dataframe
-    for index, row in dataframe.iterrows():
+    for _, row in dataframe.iterrows():
 
         # If the segment has 80 or less characters
         if len(row["comment"]) <= 80:
