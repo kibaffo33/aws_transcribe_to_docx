@@ -14,13 +14,11 @@ import webvtt
 import logging
 
 
-def convert_time_stamp(n: str) -> str:
+def convert_time_stamp(timestamp: str) -> str:
     """ Function to help convert timestamps from s to H:M:S """
-    ts = datetime.timedelta(seconds=float(n))
-    ts = ts - datetime.timedelta(microseconds=ts.microseconds)
-    to_dt = datetime.datetime.strptime(str(ts), "%H:%M:%S")
-    from_dt = to_dt.strftime("%H:%M:%S")
-    return from_dt
+    delta = datetime.timedelta(seconds=float(n))
+    seconds = delta - datetime.timedelta(microseconds=delta.microseconds)
+    return str(seconds)
 
 
 def load_json_as_dict(filepath: str) -> dict:

@@ -28,10 +28,10 @@ def test_sample_files(sample):
 @pytest.mark.parametrize(
     "time_stamp,expected",
     [
-        ("1.0", "00:00:01"),
-        ("2.5", "00:00:02"),
-        ("60.0", "00:01:00"),
-        ("3600", "01:00:00"),
+        ("1.0", "0:00:01"),
+        ("2.5", "0:00:02"),
+        ("60.0", "0:01:00"),
+        ("3600", "1:00:00"),
     ],
 )
 def test_convert_time_stamp(time_stamp, expected):
