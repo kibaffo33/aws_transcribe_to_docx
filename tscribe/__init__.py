@@ -118,7 +118,7 @@ def make_graph_png(stats: dict, directory: str) -> str:
     # Target filename, including directory for explicit path
     filename = Path(directory) / Path("chart.png")
     plt.savefig(str(filename))
-    logging.info(f"Graph saved to {filename}")
+    logging.info("Graph saved to %s", filename)
     plt.clf()
 
     return str(filename)
@@ -549,7 +549,7 @@ def write_docx(data, filename, **kwargs):
 
     # Save
     document.save(filename)
-    logging.info(f"Docx saved to {filename}")
+    logging.info("Docx saved to %s", filename)
 
 
 def write_vtt(df, filename):
@@ -593,7 +593,7 @@ def write_vtt(df, filename):
         vtt.captions.append(caption)
 
     vtt.save(filename)
-    logging.info(f"VTT saved to {filename}")
+    logging.info("VTT saved to %s", filename)
 
 
 def write(transcript_filepath, **kwargs):
@@ -602,9 +602,9 @@ def write(transcript_filepath, **kwargs):
     # Performance timer start
     start = perf_counter()
     logging.info("=" * 32)
-    logging.debug(f"Started at {start}")
-    logging.info(f"Source file: {transcript_filepath}")
-    logging.debug(f"kwargs = {kwargs}")
+    logging.debug("Started at %s", start)
+    logging.info("Source file: %s", transcript_filepath)
+    logging.debug("kwargs = %s", str(kwargs))
 
     # Load json file as dict
     data = load_json_as_dict(transcript_filepath)
@@ -655,8 +655,8 @@ def write(transcript_filepath, **kwargs):
 
     # Performance timer finish
     finish = perf_counter()
-    logging.debug(f"Finished at {finish}")
+    logging.debug("Finished at %s", finish)
     duration = round(finish - start, 2)
 
     print(f"{output_filepath} written in {duration} seconds.")
-    logging.info(f"{output_filepath} written in {duration} seconds.")
+    logging.info("%s written in %s seconds.", output_filepath, duration)
