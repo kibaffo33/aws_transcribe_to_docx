@@ -128,9 +128,6 @@ def decode_transcript_to_dataframe(data: str):
     """Decode the transcript into a pandas dataframe"""
     logging.info("Decoding transcript")
 
-    # Assign data to variable
-    data = data
-
     decoded_data = {"start_time": [], "end_time": [], "speaker": [], "comment": []}
 
     # If speaker identification
@@ -300,9 +297,6 @@ def write_docx(data, filename, **kwargs):
     # Font
     font = document.styles["Normal"].font
     font.name = "Calibri"
-
-    # Assign data to variable
-    data = data
 
     # Document title and intro
     title = f"Transcription of {data['jobName']}"
