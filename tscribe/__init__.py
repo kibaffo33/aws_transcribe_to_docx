@@ -1,4 +1,4 @@
-""" Produce Word Document transcriptions using the automatic speech recognition from AWS Transcribe. """
+""" Transform AWS Transcribe json files to docx, csv, sqlite and vtt. """
 
 from docx import Document
 from docx.shared import Cm, Mm, Inches, RGBColor
@@ -316,7 +316,8 @@ def write_docx(data, filename, **kwargs):
     threshold_for_grey = 0.98
     # Intro
     document.add_paragraph(
-        "Transcription using AWS Transcribe automatic speech recognition and the 'tscribe' python package."
+        "Transcription using AWS Transcribe automatic speech recognition and"
+        " the 'tscribe' python package."
     )
     document.add_paragraph(
         datetime.datetime.now().strftime("Document produced on %A %d %B %Y at %X.")
