@@ -378,14 +378,30 @@ def write_docx(data, filename, **kwargs):
     if "speaker_labels" in data["results"].keys():
         logging.debug("Transcript has speaker_labels")
 
+        # Initialise scope of variables
+        last_speaker = ""
+        row_cells = ""
+        last_row = ""
+        
         # A segment is a blob of pronounciation and punctuation by an individual speaker
         for segment in data["results"]["speaker_labels"]["segments"]:
 
             # If there is content in the segment, add a row, write the time and speaker
             if len(segment["items"]) > 0:
-                row_cells = table.add_row().cells
-                row_cells[0].text = convert_time_stamp(segment["start_time"])
-                row_cells[1].text = str(segment["speaker_label"])
+                appending = "no"
+                if last_speaker == str(segment["speaker_label"]):
+                    # Add this text to existing row
+                    row_cells = last_row
+                    appending = "yes"
+                else:
+                    # Add this text to new row
+                    row_cells = table.add_row().cells
+                    last_row = row_cells
+                    last_speaker = str(segment["speaker_label"])
+
+                if appending == "no":
+                    row_cells[0].text = convert_time_stamp(segment["start_time"])
+                    row_cells[1].text = str(segment["speaker_label"])
 
                 # For each word in the segment...
                 for word in segment["items"]:
