@@ -1,7 +1,7 @@
 cycler==0.10.0
 docopt==0.6.2
 kiwisolver==1.1.0
-lxml==4.6.3
+lxml==4.6.5
 matplotlib==3.2.1
 numpy==1.18.2
 pandas==1.0.3
