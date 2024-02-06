@@ -290,6 +290,15 @@ def write_docx(data, filename, **kwargs):
     document.add_heading(title, level=1)
     # Set thresholds for formatting later
     threshold_for_grey = 0.98
+    grey = RGBColor(204, 204, 204)
+    threshold_for_orange = 0.75
+    orange = RGBColor(255, 114, 0)
+    threshold_for_brown = 0.50
+    brown = RGBColor(156, 109, 7)
+    threshold_for_purple = 0.25
+    purple = RGBColor(106, 90, 205)
+    threshold_for_red = 0.00
+    red = RGBColor(255, 0, 0)
     # Intro
     document.add_paragraph(
         "Transcription using AWS Transcribe automatic speech recognition and"
@@ -301,6 +310,18 @@ def write_docx(data, filename, **kwargs):
     document.add_paragraph()  # Spacing
     document.add_paragraph(
         f"Grey text has less than {int(threshold_for_grey * 100)}% confidence."
+    )
+    document.add_paragraph(
+        f"Orange text has less than {int(threshold_for_orange * 100)}% confidence."
+    )
+    document.add_paragraph(
+        f"Brown text has less than {int(threshold_for_brown * 100)}% confidence."
+    )
+    document.add_paragraph(
+        f"Purple text has less than {int(threshold_for_purple * 100)}% confidence."
+    )
+    document.add_paragraph(
+        f"Red text has less than {int(threshold_for_red * 100)}% confidence."
     )
 
     # Get stats
@@ -410,9 +431,21 @@ def write_docx(data, filename, **kwargs):
 
                     # Write the word
                     run = row_cells[2].paragraphs[0].add_run(" " + result["content"])
-                    if float(result["confidence"]) < threshold_for_grey:
+                    if float(result["confidence"]) < threshold_for_red:
                         font = run.font
-                        font.color.rgb = RGBColor(204, 204, 204)
+                        font.color.rgb = red
+                    elif float(result["confidence"]) < threshold_for_purple:
+                        font = run.font
+                        font.color.rgb = purple
+                    elif float(result["confidence"]) < threshold_for_brown:
+                        font = run.font
+                        font.color.rgb = brown
+                    elif float(result["confidence"]) < threshold_for_orange:
+                        font = run.font
+                        font.color.rgb = orange
+                    elif float(result["confidence"]) < threshold_for_grey:
+                        font = run.font
+                        font.color.rgb = grey
 
                     # If the next item is punctuation, write it
                     try:
@@ -458,9 +491,22 @@ def write_docx(data, filename, **kwargs):
                     .paragraphs[0]
                     .add_run(" " + current_word["content"])
                 )
-                if float(current_word["confidence"]) < threshold_for_grey:
+                
+                if float(result["confidence"]) < threshold_for_red:
                     font = run.font
-                    font.color.rgb = RGBColor(204, 204, 204)
+                    font.color.rgb = red
+                elif float(result["confidence"]) < threshold_for_purple:
+                    font = run.font
+                    font.color.rgb = purple
+                elif float(result["confidence"]) < threshold_for_brown:
+                    font = run.font
+                    font.color.rgb = brown
+                elif float(result["confidence"]) < threshold_for_orange:
+                    font = run.font
+                    font.color.rgb = orange
+                elif float(result["confidence"]) < threshold_for_grey:
+                    font = run.font
+                    font.color.rgb = grey
 
             # Else start a new line
             else:
@@ -473,10 +519,22 @@ def write_docx(data, filename, **kwargs):
                 row_cells[1].text = channel
 
                 run = row_cells[2].paragraphs[0].add_run(" " + current_word["content"])
-                if float(current_word["confidence"]) < threshold_for_grey:
+                
+                if float(result["confidence"]) < threshold_for_red:
+                        font = run.font
+                        font.color.rgb = red
+                elif float(result["confidence"]) < threshold_for_purple:
                     font = run.font
-                    font.color.rgb = RGBColor(204, 204, 204)
-
+                    font.color.rgb = purple
+                elif float(result["confidence"]) < threshold_for_brown:
+                    font = run.font
+                    font.color.rgb = brown
+                elif float(result["confidence"]) < threshold_for_orange:
+                    font = run.font
+                    font.color.rgb = orange
+                elif float(result["confidence"]) < threshold_for_grey:
+                    font = run.font
+                    font.color.rgb = grey
             # If the next item is punctuation, write it
             try:
                 word_result_index = data["results"]["items"].index(word)
@@ -505,9 +563,21 @@ def write_docx(data, filename, **kwargs):
 
             # Write the word
             run = row_cells[2].paragraphs[0].add_run(" " + result["content"])
-            if float(result["confidence"]) < threshold_for_grey:
+            if float(result["confidence"]) < threshold_for_red:
                 font = run.font
-                font.color.rgb = RGBColor(204, 204, 204)
+                font.color.rgb = red
+            elif float(result["confidence"]) < threshold_for_purple:
+                font = run.font
+                font.color.rgb = purple
+            elif float(result["confidence"]) < threshold_for_brown:
+                font = run.font
+                font.color.rgb = brown
+            elif float(result["confidence"]) < threshold_for_orange:
+                font = run.font
+                font.color.rgb = orange
+            elif float(result["confidence"]) < threshold_for_grey:
+                font = run.font
+                font.color.rgb = grey
 
             # If the next item is punctuation, write it
             try:
